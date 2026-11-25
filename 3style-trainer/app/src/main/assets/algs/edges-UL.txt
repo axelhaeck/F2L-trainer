@@ -1,0 +1,441 @@
+# edge commutators, buffer UL
+UB UR	M2|U2|U M' U'	S2|D2|D' M' D	D M2|U2|U M' U'
+UB UF	M2|D2|U' M U	M2|U M' U'|D2	M2 U|M'|D2
+UB LF	U|U|R' E R	|U|F' M2 F	M2|U M2 U'|F'
+UB LD	|U|M' D' M	|S|R U' R'	|S|R' U' R
+UB LB	U|U|R E' R'	R U|U|R E' R'	R' U|U|R E' R'
+UB FU	|F U F'|M'	|F' U F|M'	M|M|U' F2 U
+UB FR	M2 R|U2|U M' U'	|R' S2 R|U'	|U|F' M' F
+UB FD	D|U|M' D M	D'|U|M' D' M	|S' D' S|U'
+UB FL	|U|F M' F'	U|U|R E2 R'	M'|L'|U M U'
+UB RU	|S'|R U' R'	|S'|R' U' R	R2|U|M' D M
+UB RB	|R' S' R|U'	R|U|M' D M	M' R|M U M'|D
+UB RD	|U|M' D M	U2|U|M D' M'	|R2 S' R2|R U' R'
+UB RF	|R S' R'|U'	R'|U|M' D M	M' R'|M U M'|D
+UB BL	U|U|R' E2 R	M'|L|U M U'	L M'|U M U'|L'
+UB BD	|U|F M F'	|U|F' M F	|F U F'|M
+UB BR	M2 R'|U2|U M' U'	|R S2 R'|U'	|R S2 R'|R2 U' R2
+UB DF	|M2|U' F2 U	U2|U|M D2 M'	|F U F'|M2
+UB DR	L2|D2|D M' D'	|S2|R U' R'	|S2|R' U' R
+UB DB	|U|M' D2 M	|M' D2 M|M2 U' M2	R|U|M' D2 M
+UB DL	U R2|D2|D M' D'	U2 R2|D2|D M D'	M' S|U2|U M U'
+UR UB	M2|U M' U'|U2	S2|D' M' D|D2	D M2|U M' U'|U2
+UR UF	M2|U2|U M U'	F2|U2|U' M' U	S2|D2|D' M D
+UR LF	F'|U2|U' M' U	|U2|R' E R	S|R2|R' E R
+UR LD	U|U2|M D M'	U|M' D' M|U2	D M|U2|U M U'
+UR LB	|U2|R E' R'	S|R2|R E' R'	B|U2|U M U'
+UR FU	M|U2|U' M' U	D M|U2|U' M' U	D' M|U2|U' M' U
+UR FR	F M|U2|U M U'	F' M|U2|U' M' U	|R' S2 R|U2
+UR FD	M|U2|U M U'	U2 M|U2|U' M U	D2 M'|U2|U' M' U
+UR FL	F M|U2|U' M' U	F' M|U2|U M U'	|U2|R E2 R'
+UR RB	|R' S' R|U2	B'|U2|U M U'	R'|U M' U'|U2 R U2
+UR RD	U|U2|M D' M'	U|M' D M|U2	D M'|U2|U' M' U
+UR RF	F|U2|U' M' U	|R S' R'|U2	M F|U2|U' M' U
+UR BU	M'|U2|U M U'	D M'|U2|U M U'	D' M'|U2|U M U'
+UR BL	|U2|R' E2 R	R2 U2|R2|R E' R'	U L'|U2|U' S U
+UR BD	M'|U2|U' M' U	M' U|F2|M	M' U'|M|F2
+UR BR	|R S2 R'|U2	U R|U2|U S' U'	U' R|U2|U' S' U
+UR DF	|U2|U' M' U	U|F2|M	U'|M|F2
+UR DR	|S'|U2	|R2|S	U|U2|D M D'
+UR DB	|U2|U M U'	U|D2 M' D2|U2	D2|U2|U' M' U
+UR DL	|U2|S	|S'|L2	U|U2|D' M D
+UF UB	M2|U' M U|D2	M2|D2|U M' U'	M2 U|D2|M'
+UF UR	M2|U M U'|U2	F2|U' M' U|U2	S2|D' M D|D2
+UF LF	U2|R' E R|U	F2|U M2 U'|F	U|F' M2 F|U
+UF LD	|U'|M D M'	|S|R U R'	|S|R' U R
+UF LB	U2|R E' R'|U	|U'|F E2 F'	R U2|R E' R'|U
+UF FR	M2 R|U2|U' M U	|R' S2 R|U	R F2|U2|U M' U'
+UF FD	D|U'|M D' M'	D'|U'|M D M'	|M|F L F'
+UF FL	F2 R|U2|U M' U'	M|U' M U|F'	U2|R E2 R'|U
+UF RU	|S'|R U R'	|S'|R' U R	|R' F R|S
+UF RB	|R' S' R|U	R|U'|M D' M'	M R|M' U' M|D'
+UF RD	|U'|M D' M'	U|M' D M|U	|R2 S' R2|R U R'
+UF RF	|R S' R'|U	R'|U'|M D' M'	M R'|M' U' M|D'
+UF BU	U|R U' R'|S'	U|R' U' R|S'	U|R U' R'|U' M U
+UF BL	U2|R' E2 R|U	M|L|U' M' U	L M|U' M' U|L'
+UF BD	D|U'|M D M'	D'|U'|M D' M'	U|F M F'|U
+UF BR	M2 R'|U2|U' M U	|R S2 R'|U	F2 R'|U2|U M' U'
+UF DF	|U'|M D2 M'	|F2|U M2 U'	|M D2 M'|M2 U M2
+UF DR	L2|D2|D' M D	|S2|R U R'	|S2|R' U R
+UF DB	U|M' D2 M|U	F2|D2|U' M U	F2|U M' U'|D2
+UF DL	U' R2|D2|D' M D	U2 R2|D2|D' M' D	M S|U2|U' M' U
+LF UB	U|R' E R|U	|F' M2 F|U	M2|F'|U M2 U'
+LF UR	F'|U' M' U|U2	|R' E R|U2	S|R' E R|R2
+LF UF	U2|U|R' E R	F2|F|U M2 U'	U|U|F' M2 F
+LF LD	|S|U' F U	|U L U'|S'	|U' L U|S'
+LF LB	S|L2|L' S' L	S R'|E|F2	S|R E R'|L2
+LF FU	M|F'|U M2 U'	U' F2|U M U'|F	M' U|R' E R|U
+LF FR	|E|R U2 R'	R F'|U2|U M' U'	U|E|R U R'
+LF FD	F' R|U2|U M' U'	U'|M'|D F D'	U'|M'|D' F D
+LF RU	|U2 L' U2|U M U'	|U2 L' U2|U' M' U	|S'|U' F U
+LF RB	U R2|F2|F M F'	R2 U|F2|F M F'	E|R U2 R'|E2
+LF RD	U R|F2|F M F'	R U|F2|F M F'	F|U'|M D' M'
+LF RF	U|F2|F M F'	U F|M'|U2	U F'|U2|M'
+LF BU	U R'|F2|F M F'	U R'|F M' F'|F U2 F'	U R'|F' U2 F|F' M' F
+LF BL	|F U' F'|E	E|R U2 R'|E	U'|F'|R E R'
+LF BD	M'|F'|U M2 U'	U|D L D'|M'	D U|L|D' M' D
+LF BR	F' R'|U2|U M' U'	R' F'|U2|U M' U'	|R2 E R2|R' U2 R
+LF DF	|F'|U M2 U'	|U2 F' U2|U M2 U'	E R|U2|U' M' U
+LF DR	F' R2|U2|U M' U'	R2 F'|U2|U M' U'	|S2|U' F U
+LF DB	U F|U2|M	F'|D2|U' M U	F' U'|D2|M
+LF DL	E R|U2|S	U F|U2|U' S U	D|F'|U M2 U'
+LD UB	|M' D' M|U	|R U' R'|S	|R' U' R|S
+LD UR	U|M D M'|U2	U|U2|M' D' M	D M|U M U'|U2
+LD UF	|M D M'|U'	|R U R'|S	|R' U R|S
+LD LF	|U' F U|S	|S'|U L U'	|S'|U' L U
+LD LB	|S'|U L' U'	|S'|U' L' U	U|D' M' D|L'
+LD FU	|M2 D' M2|M' U M	D M|D2|U M' U'	D M|U' M U|D2
+LD FR	|R U2 R'|S	|R U2 R'|R2 S R2	|S'|D F D'
+LD FD	|D|M' U' M	|S'|R D' R'	|S'|R' D' R
+LD FL	|S'|D F' D'	D|U' M U|F'	D|L'|U' M' U
+LD RU	|U2 L2 U2|U M U'	|U2 L2 U2|U' M' U	D2|R2|U M U'
+LD RB	|S'|R D2 R'	S|R'|U M U'	S|R'|U' M' U
+LD RD	D|D2|M U M'	D|M' U' M|D2	U M|D2|D M D'
+LD RF	|S'|R' D2 R	|U' F' U|S	F'|M D M'|U'
+LD BU	|M2 D M2|M U' M'	D' M'|D2|U' M U	D' M'|U M' U'|D2
+LD BL	D|L|U' M' U	D'|L|U M U'	|D L D'|S
+LD BD	|D'|M U M'	|S'|R D R'	|S'|R' D R
+LD BR	|R' U2 R|S	|R' U2 R|R2 S R2	D|U2 R' U2|U' M' U
+LD DF	|M D' M'|M2 U M2	U' M'|U2|U S U'	U' M'|U2|D M' D'
+LD DR	|U S' U'|U2 R2 U2	|U' S' U|U2 R2 U2	|R2 U2 R2|R S R'
+LD DB	|M' D M|M2 U' M2	U M|U2|U' S U	U M|U2|D' M D
+LB UB	U|R E' R'|U	R U|R E' R'|U	R' U|R E' R'|U
+LB UR	|R E' R'|U2	S|R E' R'|R2	B|U M U'|U2
+LB UF	U2|U|R E' R'	|F E2 F'|U'	R U2|U|R E' R'
+LB LF	S|L' S' L|L2	S R'|F2|E	S|L2|R E R'
+LB LD	|U L' U'|S'	|U' L' U|S'	U|L'|D' M' D
+LB FU	M U'|F2|F E F'	M' U|R E' R'|U	U' R|F R2 F'|F E' F'
+LB FR	|R2 E' R2|R U2 R'	L U|F2|F' M F	R S|R2|R' E' R
+LB FD	U'|D' L' D|M	D' U'|L'|D M D'	S L|U2|U M' U'
+LB FL	E2|E|R' U2 R	E2 U|E|R' U R	E2 U'|E|R' U' R
+LB RU	|U2 L U2|U M U'	|U2 L U2|U' M' U	L F'|U2|U' M' U
+LB RB	E'|R2|R' S R	U' F|R2|E'	E' R|U2|S'
+LB RD	R' E'|R2|R' S R	R2|U2 L U2|U M U'	R2|U2 L U2|U' M' U
+LB RF	E|E2|R' U2 R	|E2|F' U' F	R|U2 L U2|U M U'
+LB BU	M U2|U|R E' R'	S|U|R' E2 R	U' L2|L|D M D'
+LB BD	U|D L' D'|M'	D U|L'|D' M' D	S L|U2|U' M U
+LB BR	|E'|R' U2 R	U|E'|R' U R	U'|E'|R' U' R
+LB DF	U'|F2|F E F'	E' R'|U2|U' M' U	U' B'|U2|M'
+LB DR	|R' E' R|R2 U2 R2	U|R' E' R|R2 U R2	U'|R' E' R|R2 U' R2
+LB DB	E' R'|U2|U M U'	|B|U' M2 U	U' M|U' L U|M2
+LB DL	E' R'|U2|S	E' R|S'|D2	E'|L2|L E L'
+FU UB	|M'|F U F'	|M'|F' U F	M|U' F2 U|M
+FU UR	M|U' M' U|U2	D M|U' M' U|U2	D' M|U' M' U|U2
+FU LF	M|U M2 U'|F'	U' F2|F|U M U'	M' U|U|R' E R
+FU LD	|M' U M|M2 D' M2	D M|U M' U'|D2	D M|D2|U' M U
+FU LB	M U'|F E F'|F2	M' U|U|R E' R'	U' R|F E' F'|F R2 F'
+FU FR	M R|U2|U M' U'	F|F|U' M U	|F|R' S2 R
+FU FD	M|D2|U' M U	M|U M' U'|D2	M U|M'|D2
+FU FL	F2|U' M U|F	U2 R'|F2|F M F'	L|D M D'|L
+FU RU	M'|S'|R U' R'	M'|S'|R' U' R	U' R|U R' U'|M'
+FU RB	S' R|D2|D' M D	M'|R' S' R|U'	R|M' U M|M2 D M2
+FU RD	|M' U M|M2 D M2	U'|R2|D' M D	D' U'|D R2 D'|M
+FU RF	F R|U2|U' M' U	S' R'|D2|D' M D	M'|R S' R'|U'
+FU BU	U M'|U2|U M U'	U' M|U2|U M' U'	|M2 D2 M2|M U' M'
+FU BL	L2|L|D M D'	M2|L|U M U'	L M2|U M U'|L'
+FU BD	M|U' F2 U|M2	M|M2|F U F'	M|M2|F' U F
+FU BR	M R'|U2|U M' U'	F|R2|R S R'	F R|S'|U2
+FU DF	|M|U' F2 U	|M|D' L2 D	U' M|D2|U' M' U
+FU DR	M R2|U2|U M' U'	|R F R'|S2	|U' S U|U2 R2 U2
+FU DB	F R|U2|U M U'	U M'|D2|U' M U	U M'|U M' U'|D2
+FU DL	S'|D2|D' M D	|D M D'|L2	F R|U2|S
+FR UB	M2 R|U M' U'|U2	|U'|R' S2 R	|F' M' F|U
+FR UR	F M|U M U'|U2	F' M|U' M' U|U2	|U2|R' S2 R
+FR UF	M2 R|U' M U|U2	|U|R' S2 R	R F2|U M' U'|U2
+FR LF	|R U2 R'|E	R F'|U M' U'|U2	U|R U R'|E
+FR LD	|S|R U2 R'	|R2 S R2|R U2 R'	|D F D'|S'
+FR LB	|R U2 R'|R2 E' R2	L U|F' M F|F2	R S|R' E' R|R2
+FR FU	M R|U M' U'|U2	F|U' M U|F	|R' S2 R|F
+FR FD	|F|U' M U	|U' M' U|U2 R U2	M R|U2|U M U'
+FR FL	F|U' M U|F2	U M'|F2|F M' F'	U' M'|F2|F' M F
+FR RU	|U M' U'|U2 R U2	|U' M U|U2 R U2	|S'|R U2 R'
+FR RB	|R U2 R'|E'	|R U2 R'|R2 E R2	U|R U R'|E'
+FR RD	R F|U2|U' M' U	|R2 S' R2|R U2 R'	D'|F|U' M U
+FR BU	M' R|U2|U M U'	L|F2|F M F'	L F'|U2|M'
+FR BL	|R U2 R'|E2	R' U2|R2|R E' R'	U|R U R'|E2
+FR BD	|U M U'|U2 R U2	M' R|U2|U' M' U	L|F2|F' M' F
+FR BR	|R2|R S R'	R|S'|U2	R'|U2|S'
+FR DF	R|U2|U' M' U	R U|F2|M	R U'|M|F2
+FR DR	D R|U2|U M U'	D' R|U2|U' M' U	|U R' U'|S2
+FR DB	R|U2|U M U'	|U' M2 U|U2 R U2	D2 R|U2|U' M' U
+FR DL	R|U2|S	R'|S'|D2	|L2|L' E' L
+FD UB	D|M' D M|U	D'|M' D' M|U	|U'|S' D' S
+FD UR	M|U M U'|U2	U2 M|U' M U|U2	D2 M'|U' M' U|U2
+FD UF	D|M D' M'|U'	D'|M D M'|U'	|F L F'|M
+FD LF	F' R|U M' U'|U2	U'|D F D'|M'	U'|D' F D|M'
+FD LD	|M' U' M|D	|R D' R'|S'	|R' D' R|S'
+FD LB	U'|M|D' L' D	D' U'|D M D'|L'	S L|U M' U'|U2
+FD FU	M|U' M U|D2	M|D2|U M' U'	M U|D2|M'
+FD FR	|U' M U|F	|U2 R U2|U' M' U	M R|U M U'|U2
+FD FL	|U' M U|F'	|L'|U' M' U	|U' M U|U2 F' U2
+FD RU	|D R2 D'|S	D|R2|U M U'	D|R2|U' M' U
+FD RB	R|M' U' M|D'	M' R|U'|M D' M'	U'|M|D R D'
+FD RD	|M' U' M|D'	D|D|M U M'	U2|M' U M|D'
+FD RF	R'|M' U' M|D'	M' R'|U'|M D' M'	U'|M|D R' D'
+FD BU	|U' M U|U2 F2 U2	U2 M|D2|U' M' U	U2 M|U M U'|D2
+FD BL	|L|U' M' U	R|L|U' M' U	R'|L|U' M' U
+FD BD	|D2|M U M'	|M' U' M|D2	S|D2|U M U'
+FD BR	|U2 R' U2|U' M' U	M R'|U2|U' M U	F'|R2|R S R'
+FD DR	|U2 R2 U2|U' M' U	M R2|U2|U' M U	R|U' M U|F
+FD DB	F' R|U2|U M U'	|M|D L2 D'	|F L F'|M'
+FD DL	S|U2|U' M' U	|L2|U' M' U	R S|U2|U' M' U
+FL UB	|F M' F'|U	U|R E2 R'|U	M'|U M U'|L'
+FL UR	F M|U' M' U|U2	F' M|U M U'|U2	|R E2 R'|U2
+FL UF	F2 R|U M' U'|U2	M|F'|U' M U	U2|U|R E2 R'
+FL LD	|D F' D'|S'	D|F'|U' M U	D|U' M' U|L'
+FL LB	E2|R' U2 R|E	E2 U|R' U R|E	E2 U'|R' U' R|E
+FL FU	F2|F|U' M U	U2 R'|F M F'|F2	L|L|D M D'
+FL FR	F|F2|U' M U	U M'|F M' F'|F2	U' M'|F' M F|F2
+FL FD	|F'|U' M U	|U' M' U|L'	|U2 F' U2|U' M U
+FL RU	|U M' U'|L'	|U' M U|L'	|U F U'|S
+FL RB	R'|U M' U'|L'	R'|U' M U|L'	L' R'|L|U M' U'
+FL RD	D'|F'|U' M U	D|U M U'|L'	D'|U' M' U|L'
+FL RF	R|U M' U'|L'	R|U' M U|L'	L' R|L|U M' U'
+FL BU	M2|F'|U' M U	L|L|D' M' D	M'|U' M2 U|L'
+FL BL	E2|R2|R' S R	U2|L2|L' S' L	U2 R'|E|F2
+FL BD	|U M U'|L'	R|U M U'|L'	R'|U M U'|L'
+FL BR	F2|R2|R S R'	|E2|R' U2 R	R U2|R2|R E R'
+FL DF	|U M2 U'|L'	U2 L'|U2|U M' U'	M|U M U'|L'
+FL DR	U2|R2|R E R'	U L|D2|D' M' D	U' L|D2|D M D'
+FL DB	|U' M2 U|L'	F2 R|U2|U M U'	U2 L'|U2|U' M U
+FL DL	S2|R2|R' E R	F2 R|U2|S	F' S|U2|U' M' U
+RU UB	|R U' R'|S'	|R' U' R|S'	R2|M' D M|U
+RU UF	|R U R'|S'	|R' U R|S'	|S|R' F R
+RU LF	|U M U'|U2 L' U2	|U' M' U|U2 L' U2	|U' F U|S'
+RU LD	|U M U'|U2 L2 U2	|U' M' U|U2 L2 U2	D2|U M U'|R2
+RU LB	|U M U'|U2 L U2	|U' M' U|U2 L U2	L F'|U' M' U|U2
+RU FU	M'|R U' R'|S'	M'|R' U' R|S'	U' R|M'|U R' U'
+RU FR	|U2 R U2|U M' U'	|U2 R U2|U' M U	|R U2 R'|S'
+RU FD	|S|D R2 D'	D|U M U'|R2	D|U' M' U|R2
+RU FL	|L'|U M' U'	|L'|U' M U	|S|U F U'
+RU RB	|U M U'|R'	|U' M' U|R'	M|U M U'|R'
+RU RD	|U M U'|R2	|U' M' U|R2	M|U M U'|R2
+RU RF	|U M U'|R	|U' M' U|R	M|U M U'|R
+RU BU	M|R U R'|S'	M|R' U R|S'	U R|M|U' R' U
+RU BL	|L|U M' U'	|L|U' M U	M|L|U M' U'
+RU BD	|S|D' R2 D	D'|U M U'|R2	D'|U' M' U|R2
+RU BR	|U2 R' U2|U M' U'	|U2 R' U2|U' M U	|R' U2 R|S'
+RU DF	|S|R' F' R	F'|U M U'|R	F'|U' M' U|R
+RU DR	|U2 R2 U2|U M' U'	|U2 R2 U2|U' M U	|R E' R'|R2 U2 R2
+RU DB	R' U|F' U2 F|F' M F	R' F|D2|U' M U	R' F|U M' U'|D2
+RU DL	|L2|U M' U'	|L2|U' M U	M|L2|U M' U'
+RB UB	|U'|R' S' R	R|M' D M|U	M' R|D|M U M'
+RB UR	|U2|R' S' R	B'|U M U'|U2	R'|U2 R U2|U M' U'
+RB UF	|U|R' S' R	R|M D' M'|U'	M R|D'|M' U' M
+RB LF	U R2|F M F'|F2	R2 U|F M F'|F2	E|E2|R U2 R'
+RB LD	|R D2 R'|S'	S|U M U'|R'	S|U' M' U|R'
+RB LB	E'|R' S R|R2	U' F|E'|R2	E' R|S'|U2
+RB FU	S' R|D' M D|D2	M'|U'|R' S' R	R|M2 D M2|M' U M
+RB FR	|E'|R U2 R'	|R2 E R2|R U2 R'	U|E'|R U R'
+RB FD	R|D'|M' U' M	M' R|M D' M'|U'	U'|D R D'|M
+RB FL	R'|L'|U M' U'	R'|L'|U' M U	L' R'|U M' U'|L
+RB RU	|R'|U M U'	|R'|U' M' U	M|R'|U M U'
+RB RD	R2|R|U M U'	R2|R|U' M' U	U|R|D M' D'
+RB RF	R|R2|U M U'	R|R2|U' M' U	S'|R2|R S' R'
+RB BU	S' R|D2|D' M' D	M|U|R' S' R	R|M2 D' M2|M U' M'
+RB BL	R'|L|U M' U'	R'|L|U' M U	L R'|U M' U'|L'
+RB BD	R|D|M U M'	M R|M' D M|U	U|D' R D|M'
+RB DF	U'|F2|F' E' F	E' R|U2|U' M' U	U' F|R2|E
+RB DR	R2 F|U2|U M' U'	R'|U2 R' U2|U M' U'	R'|U2 R' U2|U' M U
+RB DB	E' R|U2|U M U'	U' M|U R' U'|M2	S|U' M U|R'
+RB DL	R'|L2|U M' U'	R'|L2|U' M U	E' R|U2|S
+RD UB	|M' D M|U	U2|M D' M'|U	|R U' R'|R2 S' R2
+RD UR	U|M D' M'|U2	U|U2|M' D M	D M'|U' M' U|U2
+RD UF	|M D' M'|U'	U|U|M' D M	|R U R'|R2 S' R2
+RD LF	U R|F M F'|F2	R U|F M F'|F2	F|M D' M'|U'
+RD LD	D|M U M'|D2	D|D2|M' U' M	U M|D M D'|D2
+RD LB	R' E'|R' S R|R2	R2|U M U'|U2 L U2	R2|U' M' U|U2 L U2
+RD FU	|M2 D M2|M' U M	U'|D' M D|R2	D' U'|M|D R2 D'
+RD FR	R F|U' M' U|U2	|R U2 R'|R2 S' R2	D'|U' M U|F
+RD FD	|D'|M' U' M	D|M U M'|D	U2|D'|M' U M
+RD FL	D'|U' M U|F'	D|L'|U M U'	D'|L'|U' M' U
+RD RU	|R2|U M U'	|R2|U' M' U	M|R2|U M U'
+RD RB	R2|U M U'|R	R2|U' M' U|R	U|D M' D'|R
+RD RF	R|R|U M U'	R|R|U' M' U	U|D M' D'|R'
+RD BU	|M2 D' M2|M U' M'	U|D M' D'|R2	D U|M'|D' R2 D
+RD BL	D|L|U M U'	D'|L|U' M' U	R2|L|U M' U'
+RD BD	|D|M U M'	D2|D|M' U' M	U2|D|M U' M'
+RD BR	|R' U2 R|R2 S' R2	D|U2 R' U2|U M U'	D'|U2 R' U2|U' M' U
+RD DF	|M D M'|M2 U M2	U' M'|U2|U' S' U	U' M'|U2|D' M' D
+RD DB	|M' D' M|M2 U' M2	U M|U2|U S' U'	U M|U2|D M D'
+RD DL	|D M' D'|L2	|D' M D|L2	|U S U'|L2
+RF UB	|U'|R S' R'	R'|M' D M|U	M' R'|D|M U M'
+RF UR	F|U' M' U|U2	|U2|R S' R'	M F|U' M' U|U2
+RF UF	|U|R S' R'	R'|M D' M'|U'	M R'|D'|M' U' M
+RF LF	U|F M F'|F2	U F|U2|M'	U F'|M'|U2
+RF LD	|R' D2 R|S'	|S|U' F' U	F'|U'|M D M'
+RF LB	E|R' U2 R|E2	|F' U' F|E2	R|U M U'|U2 L U2
+RF FU	F R|U' M' U|U2	S' R'|D' M D|D2	M'|U'|R S' R'
+RF FD	R'|D'|M' U' M	M' R'|M D' M'|U'	U'|D R' D'|M
+RF FL	R|L'|U M' U'	R|L'|U' M U	L' R|U M' U'|L
+RF RU	|R|U M U'	|R|U' M' U	M|R|U M U'
+RF RB	R|U M U'|R2	R|U' M' U|R2	S'|R S' R'|R2
+RF RD	R|U M U'|R	R|U' M' U|R	U|R'|D M' D'
+RF BU	S' R'|D2|D' M' D	M|U|R S' R'	R'|M2 D' M2|M U' M'
+RF BL	R|L|U M' U'	R|L|U' M U	L R|U M' U'|L'
+RF BD	R'|D|M U M'	M R'|M' D M|U	U|D' R' D|M'
+RF BR	|E|R' U2 R	F R'|U2|U M' U'	|R2 E' R2|R' U2 R
+RF DF	|F|U M2 U'	|R S R'|F'	|U2 F U2|U M2 U'
+RF DR	F R2|U2|U M' U'	R|U2 R U2|U M' U'	R|U2 R U2|U' M U
+RF DB	U F'|U2|M	F|D2|U' M U	F U'|D2|M
+RF DL	R|L2|U M' U'	R|L2|U' M U	E R'|U2|S
+BU UR	M'|U M U'|U2	D M'|U M U'|U2	D' M'|U M U'|U2
+BU UF	U|S'|R U' R'	U|S'|R' U' R	U|U' M U|R U' R'
+BU LF	U R'|F M F'|F2	U R'|F U2 F'|F M' F'	U R'|F' M' F|F' U2 F
+BU LD	|M U' M'|M2 D M2	D' M'|U' M U|D2	D' M'|D2|U M' U'
+BU LB	M U2|R E' R'|U	S|R' E2 R|U	U' L2|D M D'|L
+BU FU	U M'|U M U'|U2	U' M|U M' U'|U2	|M U' M'|M2 D2 M2
+BU FR	M' R|U M U'|U2	L|F M F'|F2	L F'|M'|U2
+BU FD	|U2 F2 U2|U' M U	U2 M|U' M' U|D2	U2 M|D2|U M U'
+BU FL	M2|U' M U|F'	L|D' M' D|L	M'|L'|U' M2 U
+BU RU	M|S'|R U R'	M|S'|R' U R	U R|U' R' U|M
+BU RB	S' R|D' M' D|D2	M|R' S' R|U	R|M U' M'|M2 D' M2
+BU RD	|M U' M'|M2 D' M2	U|R2|D M' D'	D U|D' R2 D|M'
+BU RF	S' R'|D' M' D|D2	M|R S' R'|U	R'|M U' M'|M2 D' M2
+BU BL	L2|L|D' M' D	M2|L|U' M' U	L M2|U' M' U|L'
+BU BD	M'|D2|U M' U'	M'|U' M U|D2	M' U|D2|M'
+BU BR	M' R'|U2|U' M U	M2|U2 R' U2|U' M' U	M'|U2 R' U2|U' M2 U
+BU DF	|U2 M U2|U' F2 U	U' M|D2|U M' U'	U' M|U' M U|D2
+BU DR	M' R2|U2|U' M U	|U S U'|U2 R2 U2	U|M2 D' M2|M U M'
+BU DB	|M'|D L2 D'	U M'|D2|U M U'	U M'|U' M' U|D2
+BU DL	S'|D2|D M' D'	|D' M' D|L2	|U' S' U|L2
+BL UB	U|R' E2 R|U	M'|U M U'|L	L M'|L'|U M U'
+BL UR	|R' E2 R|U2	R2 U2|R E' R'|R2	U L'|U' S U|U2
+BL UF	U2|U|R' E2 R	M|U' M' U|L	L M|L'|U' M' U
+BL LF	|E|F U' F'	E|E|R U2 R'	U'|R E R'|F'
+BL LD	D|U' M' U|L	D'|U M U'|L	|S|D L D'
+BL FU	L2|D M D'|L	M2|U M U'|L	L M2|L'|U M U'
+BL FR	|E2|R U2 R'	R' U2|R E' R'|R2	U|E2|R U R'
+BL FD	|U' M' U|L	R|U' M' U|L	R'|U' M' U|L
+BL FL	E2|R' S R|R2	U2|L' S' L|L2	U2 R'|F2|E
+BL RU	|U M' U'|L	|U' M U|L	M|U M' U'|L
+BL RB	R'|U M' U'|L	R'|U' M U|L	L R'|L'|U M' U'
+BL RD	D|U M U'|L	D'|U' M' U|L	R2|U M' U'|L
+BL RF	R|U M' U'|L	R|U' M U|L	L R|L'|U M' U'
+BL BU	L2|D' M' D|L	M2|U' M' U|L	L M2|L'|U' M' U
+BL BD	|U M U'|L	R|U M U'|L	R'|U M U'|L
+BL BR	R U2|R2|R' E' R	|R2 E2 R2|R' U2 R	E' R|R2|U M U'
+BL DF	|U M2 U'|L	U2 L|U2|U M' U'	M|U M U'|L
+BL DR	U2|R2|R' E' R	U L'|D2|D' M' D	U' L'|D2|D M D'
+BL DB	|U' M2 U|L	U2 L|U2|U' M U	M'|U' M' U|L
+BL DL	S2|R2|R E' R'	D|U M2 U'|L	D'|U' M2 U|L
+BD UB	|F M F'|U	|F' M F|U	|M|F U F'
+BD UR	M'|U' M' U|U2	M' U|M|F2	M' U'|F2|M
+BD UF	D|M D M'|U'	D'|M D' M'|U'	U|U|F M F'
+BD LF	M'|U M2 U'|F'	U|M'|D L D'	D U|D' M' D|L
+BD LD	|M U M'|D'	|R D R'|S'	|R' D R|S'
+BD LB	U|M'|D L' D'	D U|D' M' D|L'	S L|U' M U|U2
+BD FU	M|M2|U' F2 U	M|F U F'|M2	M|F' U F|M2
+BD FR	|U2 R U2|U M U'	M' R|U' M' U|U2	L|F' M' F|F2
+BD FD	|M U M'|D2	|D2|M' U' M	S|U M U'|D2
+BD FL	|L'|U M U'	R|L'|U M U'	R'|L'|U M U'
+BD RU	|D' R2 D|S	D'|R2|U M U'	D'|R2|U' M' U
+BD RB	R|M U M'|D	M R|U|M' D M	U|M'|D' R D
+BD RD	|M U M'|D	D2|M' U' M|D	U2|M U' M'|D
+BD RF	R'|M U M'|D	M R'|U|M' D M	U|M'|D' R' D
+BD BU	M'|U M' U'|D2	M'|D2|U' M U	M' U|M'|D2
+BD BL	|L|U M U'	R|L|U M U'	R'|L|U M U'
+BD BR	|U2 R' U2|U M U'	M' R'|U2|U M' U'	|U M' U'|B'
+BD DF	|M'|U' F2 U	|M'|D' L2 D	|U2 M' U2|U' F2 U
+BD DR	|U2 R2 U2|U M U'	M' R2|U2|U M' U'	R|U2 R U2|U M U'
+BD DL	S|U2|U M U'	|L2|U M U'	R S|U2|U M U'
+BR UB	M2 R'|U M' U'|U2	|U'|R S2 R'	|R2 U' R2|R S2 R'
+BR UR	|U2|R S2 R'	U R|U S' U'|U2	U' R|U' S' U|U2
+BR UF	M2 R'|U' M U|U2	|U|R S2 R'	F2 R'|U M' U'|U2
+BR LF	F' R'|U M' U'|U2	R' F'|U M' U'|U2	|R' U2 R|R2 E R2
+BR LD	|S|R' U2 R	|R2 S R2|R' U2 R	D|U' M' U|U2 R' U2
+BR LB	|R' U2 R|E'	U|R' U R|E'	U'|R' U' R|E'
+BR FU	M R'|U M' U'|U2	F|R S R'|R2	F R|U2|S'
+BR FR	|R S R'|R2	R|U2|S'	R'|S'|U2
+BR FD	|U' M' U|U2 R' U2	M R'|U' M U|U2	F'|R S R'|R2
+BR FL	F2|R S R'|R2	|R' U2 R|E2	R U2|R E R'|R2
+BR RU	|U M' U'|U2 R' U2	|U' M U|U2 R' U2	|S'|R' U2 R
+BR RD	|R2 S' R2|R' U2 R	D|U M U'|U2 R' U2	D'|U' M' U|U2 R' U2
+BR RF	|R' U2 R|E	F R'|U M' U'|U2	|R' U2 R|R2 E' R2
+BR BU	M' R'|U' M U|U2	M2|U' M' U|U2 R' U2	M'|U' M2 U|U2 R' U2
+BR BL	R U2|R' E' R|R2	|R' U2 R|R2 E2 R2	E' R|U M U'|R2
+BR BD	|U M U'|U2 R' U2	M' R'|U M' U'|U2	|B'|U M' U'
+BR DF	R'|U2|U' M' U	R' U|F2|M	R' U'|M|F2
+BR DR	D R'|U2|U M U'	D' R'|U2|U' M' U	|U R U'|S2
+BR DB	R'|U2|U M U'	|U' M2 U|U2 R' U2	D2 R'|U2|U' M' U
+BR DL	R'|U2|S	R|S'|D2	|L2|L E L'
+DF UB	|U' F2 U|M2	U2|M D2 M'|U	|M2|F U F'
+DF UR	|U' M' U|U2	U|M|F2	U'|F2|M
+DF UF	|M D2 M'|U'	|U M2 U'|F2	|M2 U M2|M D2 M'
+DF LF	|U M2 U'|F'	|U M2 U'|U2 F' U2	E R|U' M' U|U2
+DF LD	|M2 U M2|M D' M'	U' M'|U S U'|U2	U' M'|D M' D'|U2
+DF LB	U'|F E F'|F2	E' R'|U' M' U|U2	U' B'|M'|U2
+DF FU	|U' F2 U|M	|D' L2 D|M	U' M|U' M' U|D2
+DF FR	R|U' M' U|U2	R U|M|F2	R U'|F2|M
+DF FL	|L'|U M2 U'	U2 L'|U M' U'|U2	M|L'|U M U'
+DF RU	|R' F' R|S	F'|R|U M U'	F'|R|U' M' U
+DF RB	U'|F' E' F|F2	E' R|U' M' U|U2	U' F|E|R2
+DF RD	|M2 U M2|M D M'	U' M'|U' S' U|U2	U' M'|D' M' D|U2
+DF RF	|U M2 U'|F	|F'|R S R'	|U M2 U'|U2 F U2
+DF BU	|U' F2 U|U2 M U2	U' M|U M' U'|D2	U' M|D2|U' M U
+DF BL	|L|U M2 U'	U2 L|U M' U'|U2	M|L|U M U'
+DF BD	|U' F2 U|M'	|D' L2 D|M'	|U' F2 U|U2 M' U2
+DF BR	R'|U' M' U|U2	R' U|M|F2	R' U'|F2|M
+DF DR	R2|U2|U M' U'	D R2|U2|U M U'	R2 U|M|F2
+DF DB	|D2|U' M U	U'|D2|M	|U M' U'|D2
+DF DL	D R2|U2|U' M' U	|L2|U M2 U'	D2 R2|U2|U' M U
+DR UB	L2|D M' D'|D2	|R U' R'|S2	|R' U' R|S2
+DR UR	|U2|S'	|S|R2	U|D M D'|U2
+DR UF	L2|D' M D|D2	|R U R'|S2	|R' U R|S2
+DR LF	F' R2|U M' U'|U2	R2 F'|U M' U'|U2	|U' F U|S2
+DR LD	|U2 R2 U2|U S' U'	|U2 R2 U2|U' S' U	|R S R'|R2 U2 R2
+DR LB	|R2 U2 R2|R' E' R	U|R2 U R2|R' E' R	U'|R2 U' R2|R' E' R
+DR FU	M R2|U M' U'|U2	|S2|R F R'	|U2 R2 U2|U' S U
+DR FR	D R|U M U'|U2	D' R|U' M' U|U2	|S2|U R' U'
+DR FD	|U' M' U|U2 R2 U2	M R2|U' M U|U2	R|F|U' M U
+DR FL	U2|R E R'|R2	U L|D' M' D|D2	U' L|D M D'|D2
+DR RU	|U M' U'|U2 R2 U2	|U' M U|U2 R2 U2	|R2 U2 R2|R E' R'
+DR RB	R2 F|U M' U'|U2	R'|U M' U'|U2 R' U2	R'|U' M U|U2 R' U2
+DR RF	F R2|U M' U'|U2	R|U M' U'|U2 R U2	R|U' M U|U2 R U2
+DR BU	M' R2|U' M U|U2	|U2 R2 U2|U S U'	U|M U M'|M2 D' M2
+DR BL	U2|R' E' R|R2	U L'|D' M' D|D2	U' L'|D M D'|D2
+DR BD	|U M U'|U2 R2 U2	M' R2|U M' U'|U2	R|U M U'|U2 R U2
+DR BR	D R'|U M U'|U2	D' R'|U' M' U|U2	|S2|U R U'
+DR DF	R2|U M' U'|U2	D R2|U M U'|U2	R2 U|F2|M
+DR DB	R2|U2|U M U'	D' R2|U2|U M' U'	|U' M2 U|U2 R2 U2
+DR DL	|S'|D2	|L2|S	D|D2|U M' U'
+DB UB	|M' D2 M|U	|M2 U' M2|M' D2 M	R|M' D2 M|U
+DB UR	|U M U'|U2	U|U2|D2 M' D2	D2|U' M' U|U2
+DB UF	U|U|M' D2 M	F2|U' M U|D2	F2|D2|U M' U'
+DB LF	U F|M|U2	F'|U' M U|D2	F' U'|M|D2
+DB LD	|M2 U' M2|M' D M	U M|U' S U|U2	U M|D' M D|U2
+DB LB	E' R'|U M U'|U2	|U' M2 U|B	U' M|M2|U' L U
+DB FU	F R|U M U'|U2	U M'|U' M U|D2	U M'|D2|U M' U'
+DB FR	R|U M U'|U2	|U2 R U2|U' M2 U	D2 R|U' M' U|U2
+DB FD	F' R|U M U'|U2	|D L2 D'|M	|M'|F L F'
+DB FL	|L'|U' M2 U	F2 R|U M U'|U2	U2 L'|U' M U|U2
+DB RU	R' U|F' M F|F' U2 F	R' F|U' M U|D2	R' F|D2|U M' U'
+DB RB	E' R|U M U'|U2	U' M|M2|U R' U'	S|R'|U' M U
+DB RD	|M2 U' M2|M' D' M	U M|U S' U'|U2	U M|D M D'|U2
+DB RF	U F'|M|U2	F|U' M U|D2	F U'|M|D2
+DB BU	|D L2 D'|M'	U M'|U M U'|D2	U M'|D2|U' M' U
+DB BL	|L|U' M2 U	U2 L|U' M U|U2	M'|L|U' M' U
+DB BR	R'|U M U'|U2	|U2 R' U2|U' M2 U	D2 R'|U' M' U|U2
+DB DF	|U' M U|D2	U'|M|D2	|D2|U M' U'
+DB DR	R2|U M U'|U2	D' R2|U M' U'|U2	|U2 R2 U2|U' M2 U
+DB DL	D' R2|U2|U M U'	|L2|U' M2 U	D2 R2|U2|U M' U'
+DL UB	U R2|D M' D'|D2	U2 R2|D M D'|D2	M' S|U M U'|U2
+DL UR	|S|U2	|L2|S'	U|D' M D|U2
+DL UF	U' R2|D' M D|D2	U2 R2|D' M' D|D2	M S|U' M' U|U2
+DL LF	E R|S|U2	U F|U' S U|U2	D|U M2 U'|F'
+DL LB	E' R'|S|U2	E' R|D2|S'	E'|L E L'|L2
+DL FU	S'|D' M D|D2	|L2|D M D'	F R|S|U2
+DL FR	R|S|U2	R'|D2|S'	|L' E' L|L2
+DL FD	S|U' M' U|U2	|U' M' U|L2	R S|U' M' U|U2
+DL FL	S2|R' E R|R2	F2 R|S|U2	F' S|U' M' U|U2
+DL RU	|U M' U'|L2	|U' M U|L2	M|U M' U'|L2
+DL RB	R'|U M' U'|L2	R'|U' M U|L2	E' R|S|U2
+DL RD	|L2|D M' D'	|L2|D' M D	|L2|U S U'
+DL RF	R|U M' U'|L2	R|U' M U|L2	E R'|S|U2
+DL BU	S'|D M' D'|D2	|L2|D' M' D	|L2|U' S' U
+DL BL	S2|R E' R'|R2	D|L|U M2 U'	D'|L|U' M2 U
+DL BD	S|U M U'|U2	|U M U'|L2	R S|U M U'|U2
+DL BR	R'|S|U2	R|D2|S'	|L E L'|L2
+DL DF	D R2|U' M' U|U2	|U M2 U'|L2	D2 R2|U' M U|U2
+DL DR	|D2|S'	|S|L2	D|U M' U'|D2
+DL DB	D' R2|U M U'|U2	|U' M2 U|L2	D2 R2|U M' U'|U2
