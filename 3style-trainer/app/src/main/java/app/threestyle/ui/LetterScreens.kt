@@ -3,6 +3,9 @@ package app.threestyle.ui
 import android.os.SystemClock
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -104,17 +107,6 @@ fun LettersScreen(vm: AppViewModel, modifier: Modifier) {
 }
 
 @Composable
-private fun Keypad(letters: String, onLetter: (Char) -> Unit) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        for (c in letters) {
-            OutlinedButton(onClick = { onLetter(c) }, modifier = Modifier.size(width = 52.dp, height = 44.dp), contentPadding = PaddingValues(0.dp)) {
-                Text("$c", fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            }
-        }
-    }
-}
-
-@Composable
 fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>) {
     val scheme = vm.settings.scheme
     val s = vm.settings
@@ -154,36 +146,63 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
     LaunchedEffect(answer) {
         if (answer != null && ok) { delay(500); next() }
     }
-    SubScreen(if (toLetter) "Sticker → letter" else "Letter → sticker", { vm.back() }) {
-        item {
-            Hint("$correct / $total correct" + if (correct > 0) " · average ${formatMs(timeSum / correct)}" else "")
+    FixedScreen(if (toLetter) "Sticker → letter" else "Letter → sticker", { vm.back() }) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(if (type == PieceType.CORNER) "Corner sticker" else "Edge sticker",
+                style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+            Hint("$correct / $total correct" + if (correct > 0) " · Ø ${formatMs(timeSum / correct)}" else "")
         }
-        item {
-            Text(if (type == PieceType.CORNER) "Corner sticker" else "Edge sticker", style = MaterialTheme.typography.labelLarge)
-            if (!toLetter) {
-                Text("${scheme.letterOf(target)}", fontSize = 64.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
-            }
+        if (!toLetter) {
+            Text("${scheme.letterOf(target)}", fontSize = 56.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace,
+                modifier = Modifier.align(Alignment.CenterHorizontally))
+        }
+        // the net takes the space that is left, so the whole quiz fits on the screen
+        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
             CubeNet(
                 state = CubeState.SOLVED,
                 faceColours = CubeColours.faceColours(s.topColour, s.frontColour),
-                modifier = Modifier.fillMaxWidth(),
                 highlight = if (toLetter || answer != null) target else null,
                 markers = if (answer != null && !ok && !toLetter) listOf(Marker(answer!!, "✗")) else emptyList(),
                 description = if (toLetter) "Highlighted sticker" else "Tap the sticker",
                 onTap = if (toLetter) null else { f -> submit(f) },
             )
         }
-        item {
-            when {
-                answer == null && toLetter -> Keypad(scheme.alphabet(type)) { c -> scheme.stickerOf(type, c)?.let { submit(it) } }
-                answer == null -> Hint("Tap the ${if (type == PieceType.CORNER) "corner" else "edge"} sticker with this letter.")
-                ok -> Text("✓ ${scheme.letterOf(target)} = ${Stickers.stickerName(target)}", color = MaterialTheme.colorScheme.primary, fontSize = 20.sp)
-                else -> Column {
-                    val a = answer!!
-                    val wrong = if (Stickers.typeOf(a) == type) "${scheme.letterOf(a)} = ${Stickers.stickerName(a)}" else "not a ${type.name.lowercase()} sticker"
-                    Text("✗ That was $wrong", color = MaterialTheme.colorScheme.error, fontSize = 18.sp)
-                    Text("${scheme.letterOf(target)} = ${Stickers.stickerName(target)} (highlighted)", fontSize = 18.sp)
-                    Button(onClick = { next() }, modifier = Modifier.padding(top = 8.dp)) { Text("Next") }
+        // feedback in a fixed place, so that nothing jumps
+        Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                when {
+                    answer == null -> Hint(if (toLetter) "Which letter is the highlighted sticker?"
+                        else "Tap the ${if (type == PieceType.CORNER) "corner" else "edge"} sticker with this letter.")
+                    ok -> Text("✓ ${scheme.letterOf(target)} = ${Stickers.stickerName(target)}", color = MaterialTheme.colorScheme.primary, fontSize = 20.sp)
+                    else -> {
+                        val a = answer!!
+                        val wrong = if (Stickers.typeOf(a) == type) "${scheme.letterOf(a)} = ${Stickers.stickerName(a)}" else "not a ${type.name.lowercase()} sticker"
+                        Text("✗ That was $wrong", color = MaterialTheme.colorScheme.error, fontSize = 16.sp)
+                        Text("${scheme.letterOf(target)} = ${Stickers.stickerName(target)}", fontSize = 16.sp)
+                    }
+                }
+            }
+            if (answer != null && !ok) Button(onClick = { next() }) { Text("Next") }
+        }
+        if (toLetter) {
+            val alphabet = scheme.alphabet(type)
+            LetterGrid(alphabet.toList(), Modifier.fillMaxWidth()) { c, m ->
+                val sticker = scheme.stickerOf(type, c)
+                val isTarget = answer != null && sticker == target
+                val isWrong = answer != null && !ok && sticker == answer
+                val colours = when {
+                    isTarget -> ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                    isWrong -> ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+                    else -> ButtonDefaults.outlinedButtonColors()
+                }
+                OutlinedButton(
+                    onClick = { sticker?.let { submit(it) } },
+                    enabled = answer == null || isTarget || isWrong,
+                    colors = colours,
+                    modifier = m.height(46.dp),
+                    contentPadding = PaddingValues(0.dp),
+                ) {
+                    Text("$c", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -201,12 +220,12 @@ fun PairWordsScreen(vm: AppViewModel) {
     SubScreen("Letter pair words", { vm.back() }) {
         item {
             Hint("Choose the first letter, then type a word or image for each pair. Saved automatically.")
-            ChipGroup {
-                for (c in letters) {
-                    val n = letters.count { vm.words.containsKey("$c$it") }
-                    FilterChip(selected = c == first, onClick = { first = c }, label = { Text(if (n > 0) "$c·$n" else "$c") })
-                }
+            LetterGrid(letters, Modifier.fillMaxWidth().padding(top = 6.dp)) { c, m ->
+                val n = letters.count { vm.words.containsKey("$c$it") }
+                FilterChip(selected = c == first, onClick = { first = c }, modifier = m,
+                    label = { Text(if (n > 0) "$c · $n" else "$c", fontWeight = FontWeight.Bold) })
             }
+            Hint("The number is how many pairs with this first letter already have a word.")
         }
         items(letters.filter { it != first }, key = { "$first$it" }) { second ->
             val pair = "$first$second"

@@ -104,6 +104,19 @@ class ScreenshotTest {
         rule.onAllNodesWithText("Both")[0].performClick()
         rule.waitForIdle()
         shot("13_quiz_to_letter")
+        // answer: one of A/B is wrong (two different stickers), the feedback is shown
+        rule.onNodeWithText("A").performClick()
+        rule.waitForIdle()
+        if (rule.onAllNodesWithText("Next").fetchSemanticsNodes().isEmpty()) {
+            rule.mainClock.advanceTimeBy(1000)
+            rule.onNodeWithText("B").performClick()
+            rule.waitForIdle()
+        }
+        shot("13b_quiz_answered")
+        rule.onNodeWithText("← Back").performClick()
+        rule.onAllNodesWithText("Both")[1].performClick()
+        rule.waitForIdle()
+        shot("13c_quiz_to_sticker")
         rule.onNodeWithText("← Back").performClick()
         scrollTo("Trace a scramble")
         rule.onNodeWithText("Trace a scramble").performClick()

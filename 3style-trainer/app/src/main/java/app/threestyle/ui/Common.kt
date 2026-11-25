@@ -118,6 +118,48 @@ fun SubScreen(
     }
 }
 
+/** A full screen with a title bar and a back button; the content does not scroll (fixed portrait layout). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FixedScreen(title: String, onBack: () -> Unit, content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                navigationIcon = { TextButton(onClick = onBack) { Text("← Back") } },
+            )
+        },
+    ) { padding ->
+        Column(
+            Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            content = content,
+        )
+    }
+}
+
+/**
+ * Letters in rows of [columns] (default 4: A B C D / E F G H / ...), i.e. one row per face in Speffz
+ * order. [cell] draws one letter; its modifier gives every cell the same width.
+ */
+@Composable
+fun LetterGrid(
+    letters: List<Char>,
+    modifier: Modifier = Modifier,
+    columns: Int = 4,
+    cell: @Composable (Char, Modifier) -> Unit,
+) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        for (row in letters.chunked(columns)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                for (c in row) cell(c, Modifier.weight(1f))
+                // keep the cell width in an incomplete last row
+                repeat(columns - row.size) { Box(Modifier.weight(1f)) }
+            }
+        }
+    }
+}
+
 @Composable
 fun Loading(modifier: Modifier = Modifier, text: String = "Loading commutators…") {
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
