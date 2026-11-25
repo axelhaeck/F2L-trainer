@@ -36,6 +36,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            // ./gradlew testDebugUnitTest -Pscreenshots  -> writes PNGs of all screens to app/build/screenshots
+            if (project.hasProperty("screenshots")) it.systemProperty("roborazzi.test.record", "true")
+        }
+    }
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
@@ -54,4 +61,10 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
 
     testImplementation("junit:junit:4.13.2")
+    // Screenshot tests on the JVM (test-only, not part of the app)
+    testImplementation("org.robolectric:robolectric:4.18.1")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi:1.79.0")
+    testImplementation("io.github.takahirom.roborazzi:roborazzi-compose:1.79.0")
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
