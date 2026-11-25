@@ -24,11 +24,20 @@ import org.robolectric.annotation.GraphicsMode
 @OptIn(ExperimentalTestApi::class)
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [37], qualifiers = "w360dp-h640dp-xhdpi")
+@Config(sdk = [37])
 class SmallScreenTest {
     @get:Rule val rule = createComposeRule()
 
-    @Test fun quizFitsWithoutScrolling() {
+    @Config(qualifiers = "w360dp-h640dp-xhdpi")
+    @Test fun quizFitsWithoutScrolling() = check("30_quiz_small_phone")
+
+    @Config(qualifiers = "w891dp-h411dp-land-xxhdpi")
+    @Test fun quizFitsInLandscape() = check("31_quiz_landscape")
+
+    @Config(qualifiers = "w640dp-h360dp-land-xhdpi")
+    @Test fun quizFitsInSmallLandscape() = check("32_quiz_small_landscape")
+
+    private fun check(name: String) {
         rule.setContent { AppTheme { App(finish = {}) } }
         rule.onNodeWithText("Letters").performClick()
         rule.onNode(hasScrollAction()).performScrollToNode(hasText("Sticker → letter"))
@@ -37,6 +46,6 @@ class SmallScreenTest {
         // first and last key of the 6 x 4 grid are visible
         rule.onNodeWithText("A").assertIsDisplayed()
         rule.onNodeWithText("X").assertIsDisplayed()
-        rule.onRoot().captureRoboImage("build/screenshots/30_quiz_small_phone.png")
+        rule.onRoot().captureRoboImage("build/screenshots/$name.png")
     }
 }

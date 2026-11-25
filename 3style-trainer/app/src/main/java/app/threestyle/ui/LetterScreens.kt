@@ -37,6 +37,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -146,28 +151,41 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
     LaunchedEffect(answer) {
         if (answer != null && ok) { delay(500); next() }
     }
-    FixedScreen(if (toLetter) "Sticker → letter" else "Letter → sticker", { vm.back() }) {
+    @Composable
+    fun Header() {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(if (type == PieceType.CORNER) "Corner sticker" else "Edge sticker",
                 style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
             Hint("$correct / $total correct" + if (correct > 0) " · Ø ${formatMs(timeSum / correct)}" else "")
         }
-        if (!toLetter) {
-            Text("${scheme.letterOf(target)}", fontSize = 56.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace,
-                modifier = Modifier.align(Alignment.CenterHorizontally))
-        }
-        // the net takes the space that is left, so the whole quiz fits on the screen
-        Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+    }
+
+    @Composable
+    fun BigLetter(modifier: Modifier) {
+        Text("${scheme.letterOf(target)}", fontSize = 56.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace,
+            modifier = modifier)
+    }
+
+    /** The net fills the space it is given (drawn centred, never outside it). */
+    @Composable
+    fun Net(modifier: Modifier) {
+        Box(modifier.fillMaxWidth().clipToBounds(), contentAlignment = Alignment.Center) {
             CubeNet(
                 state = CubeState.SOLVED,
                 faceColours = CubeColours.faceColours(s.topColour, s.frontColour),
+                modifier = Modifier.fillMaxSize(),
+                keepAspectRatio = false,
                 highlight = if (toLetter || answer != null) target else null,
                 markers = if (answer != null && !ok && !toLetter) listOf(Marker(answer!!, "✗")) else emptyList(),
                 description = if (toLetter) "Highlighted sticker" else "Tap the sticker",
                 onTap = if (toLetter) null else { f -> submit(f) },
             )
         }
-        // feedback in a fixed place, so that nothing jumps
+    }
+
+    /** Feedback in a fixed place, so that nothing jumps. */
+    @Composable
+    fun Feedback() {
         Row(Modifier.fillMaxWidth().heightIn(min = 56.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 when {
@@ -184,25 +202,59 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
             }
             if (answer != null && !ok) Button(onClick = { next() }) { Text("Next") }
         }
-        if (toLetter) {
-            val alphabet = scheme.alphabet(type)
-            LetterGrid(alphabet.toList(), Modifier.fillMaxWidth()) { c, m ->
-                val sticker = scheme.stickerOf(type, c)
-                val isTarget = answer != null && sticker == target
-                val isWrong = answer != null && !ok && sticker == answer
-                val colours = when {
-                    isTarget -> ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-                    isWrong -> ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
-                    else -> ButtonDefaults.outlinedButtonColors()
+    }
+
+    @Composable
+    fun Keys(modifier: Modifier, keyHeight: Dp) {
+        LetterGrid(scheme.alphabet(type).toList(), modifier) { c, m ->
+            val sticker = scheme.stickerOf(type, c)
+            val isTarget = answer != null && sticker == target
+            val isWrong = answer != null && !ok && sticker == answer
+            val colours = when {
+                isTarget -> ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                isWrong -> ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+                else -> ButtonDefaults.outlinedButtonColors()
+            }
+            OutlinedButton(
+                onClick = { sticker?.let { submit(it) } },
+                enabled = answer == null || isTarget || isWrong,
+                colors = colours,
+                modifier = m.height(keyHeight),
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                Text("$c", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+
+    FixedScreen(if (toLetter) "Sticker → letter" else "Letter → sticker", { vm.back() }) {
+        BoxWithConstraints(Modifier.fillMaxWidth().weight(1f)) {
+            val gaps = 6.dp * 5  // between the 6 rows of keys
+            if (maxWidth > maxHeight) {
+                // landscape: cube on the left, letters on the right
+                val keyHeight = ((maxHeight - gaps) / 6).coerceIn(28.dp, 56.dp)
+                Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Column(Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Header()
+                        if (!toLetter) BigLetter(Modifier.align(Alignment.CenterHorizontally))
+                        Net(Modifier.weight(1f))
+                        if (toLetter) Feedback()
+                    }
+                    if (toLetter) {
+                        Keys(Modifier.weight(1f).fillMaxHeight().wrapContentHeight(), keyHeight)
+                    } else {
+                        Column(Modifier.weight(0.6f).fillMaxHeight(), verticalArrangement = Arrangement.Center) { Feedback() }
+                    }
                 }
-                OutlinedButton(
-                    onClick = { sticker?.let { submit(it) } },
-                    enabled = answer == null || isTarget || isWrong,
-                    colors = colours,
-                    modifier = m.height(46.dp),
-                    contentPadding = PaddingValues(0.dp),
-                ) {
-                    Text("$c", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            } else {
+                // portrait: everything below each other; the keys take at most ~45 % of the height
+                val keyHeight = ((maxHeight * 0.45f - gaps) / 6).coerceIn(28.dp, 50.dp)
+                Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Header()
+                    if (!toLetter) BigLetter(Modifier.align(Alignment.CenterHorizontally))
+                    Net(Modifier.weight(1f))
+                    Feedback()
+                    if (toLetter) Keys(Modifier.fillMaxWidth(), keyHeight)
                 }
             }
         }

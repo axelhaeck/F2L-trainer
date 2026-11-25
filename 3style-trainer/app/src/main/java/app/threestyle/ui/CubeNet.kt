@@ -112,13 +112,15 @@ fun CubeNet(
     arrows: List<Arrow> = emptyList(),
     highlight: Int? = null,
     description: String = "Cube net",
+    /** false: fill the whole area given by [modifier] (the net is drawn centred and as large as fits). */
+    keepAspectRatio: Boolean = true,
     onTap: ((Int) -> Unit)? = null,
 ) {
     val measurer = rememberTextMeasurer()
     val background = MaterialTheme.colorScheme.surface
     val outline = MaterialTheme.colorScheme.onSurface
     val accent = Color(0xFFE91E63)
-    var m = modifier.aspectRatio(12f / 9f).semantics { contentDescription = description }
+    var m = (if (keepAspectRatio) modifier.aspectRatio(12f / 9f) else modifier).semantics { contentDescription = description }
     if (onTap != null) {
         m = m.pointerInput(onTap) {
             detectTapGestures { pos ->
