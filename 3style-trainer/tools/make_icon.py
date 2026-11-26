@@ -45,27 +45,37 @@ for face in "UFR":
         for c in range(3):
             shapes.append((COL[face], quad(face, c / 3 + gap, r / 3 + gap, (c + 1) / 3 - gap, (r + 1) / 3 - gap), None))
 
-# blindfold: a black band around the middle row of the side faces, slightly wider than the row
-b0, b1 = 0.30, 0.70
-band_f = quad("F", -0.02, b0, 1.0, b1)
-band_r = quad("R", 0.0, b0, 1.02, b1)
-BAND = "#FF0B0B0E"
-shapes.append((BAND, band_f, None))
-shapes.append((BAND, band_r, None))
-# light edge lines on the band so it reads as fabric on a dark cube
-edge = "#FF5A606B"
-# knot with two hanging, slightly waving tails at the left edge of the band
-kx, ky = face_point("F", -0.02, (b0 + b1) / 2)
-knot = [(kx - 2.2, ky - 3.4), (kx + 0.8, ky - 2.8), (kx + 0.8, ky + 2.8), (kx - 2.2, ky + 3.4)]
-tail1 = [(kx - 1.5, ky - 2.0), (kx - 7.0, ky + 0.5), (kx - 12.5, ky + 4.5), (kx - 10.5, ky + 6.8), (kx - 5.5, ky + 3.6), (kx - 1.0, ky + 1.8)]
-tail2 = [(kx - 1.6, ky + 0.2), (kx - 4.6, ky + 6.0), (kx - 5.6, ky + 12.5), (kx - 2.6, ky + 12.9), (kx - 1.8, ky + 7.0), (kx + 0.4, ky + 2.6)]
-for t in (tail1, tail2, knot):
-    shapes.append((BAND, t, None))
+# blindfold: a sleep mask on the front edge of the cube, held by a thin strap around the cube
+STRAP = "#FF1B1D24"
+s0, s1 = 0.44, 0.56
+shapes.append((STRAP, quad("F", -0.015, s0, 1.0, s1), None))
+shapes.append((STRAP, quad("R", 0.0, s0, 1.015, s1), None))
 
 lines = []  # stroke lines (colour, points)
-lines.append((edge, [face_point("F", -0.02, b0), face_point("F", 1.0, b0), face_point("R", 1.02, b0)]))
-lines.append((edge, [face_point("F", -0.02, b1), face_point("F", 1.0, b1), face_point("R", 1.02, b1)]))
+raw = []    # (fill colour or None, stroke colour or None, stroke width, path data)
 
+cx, cy = face_point("F", 1.0, 0.5)   # middle of the front vertical edge
+cy += 1.0
+
+
+def r(dx, dy):
+    return "%.2f,%.2f" % (cx + dx, cy + dy)
+
+
+W = 15.5  # half width of the mask
+mask = ("M" + r(-W, -2) + " C" + r(-W, -9) + " " + r(-6, -9.5) + " " + r(0, -5.5) +
+        " C" + r(6, -9.5) + " " + r(W, -9) + " " + r(W, -2) +
+        " C" + r(W, 5.5) + " " + r(8.5, 7.5) + " " + r(3.2, 4.2) +
+        " C" + r(1.6, 3.2) + " " + r(-1.6, 3.2) + " " + r(-3.2, 4.2) +
+        " C" + r(-8.5, 7.5) + " " + r(-W, 5.5) + " " + r(-W, -2) + " Z")
+raw.append(("#FF1B1D24", "#FF5A606B", 0.6, mask))
+# closed eyes with lashes
+EYE = "#FFE8ECF3"
+for sgn in (-1, 1):
+    ex = sgn * 7.6
+    raw.append((None, EYE, 1.0, "M" + r(ex - 4.2, -1.2) + " Q" + r(ex, 2.6) + " " + r(ex + 4.2, -1.2)))
+    for lx, ly in ((-2.6, 0.9), (0.0, 1.5), (2.6, 0.9)):
+        raw.append((None, EYE, 0.8, "M" + r(ex + lx, ly) + " L" + r(ex + lx * 1.25, ly + 2.0)))
 
 def vector_xml():
     out = ['<?xml version="1.0" encoding="utf-8"?>',
@@ -78,6 +88,11 @@ def vector_xml():
     for col, pts in lines:
         d = "M" + " L".join("%.2f,%.2f" % p for p in pts)
         out.append('    <path android:strokeColor="%s" android:strokeWidth="0.7" android:strokeLineJoin="round" android:pathData="%s" />' % (col, d))
+    for fill, stroke, w, d in raw:
+        attrs = []
+        if fill: attrs.append('android:fillColor="%s"' % fill)
+        if stroke: attrs.append('android:strokeColor="%s" android:strokeWidth="%s" android:strokeLineCap="round" android:strokeLineJoin="round"' % (stroke, w))
+        out.append('    <path %s android:pathData="%s" />' % (" ".join(attrs), d))
     out.append('</vector>')
     return "\n".join(out) + "\n"
 
@@ -92,6 +107,9 @@ def svg(bg="#E8ECF3"):
     for col, pts in lines:
         out.append('<path fill="none" stroke="%s" stroke-width="0.7" stroke-linejoin="round" d="%s"/>' %
                    (argb(col), "M" + " L".join("%.2f,%.2f" % p for p in pts)))
+    for fill, stroke, w, d in raw:
+        out.append('<path fill="%s" stroke="%s" stroke-width="%s" stroke-linecap="round" stroke-linejoin="round" d="%s"/>' %
+                   (argb(fill) if fill else "none", argb(stroke) if stroke else "none", w, d))
     out.append('</svg>')
     return "\n".join(out)
 
