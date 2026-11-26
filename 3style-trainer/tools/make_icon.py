@@ -7,7 +7,7 @@ import math
 import os
 import sys
 
-C = (57.0, 54.0)          # centre of the cube
+C = (54.0, 54.0)          # centre of the cube
 S = 25.0                  # edge length in projection units
 cos30 = math.cos(math.radians(30))
 

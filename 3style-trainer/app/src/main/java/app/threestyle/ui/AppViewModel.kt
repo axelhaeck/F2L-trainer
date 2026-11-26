@@ -226,10 +226,15 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     fun knowledge(mode: QuizMode, sticker: Int): StickerKnowledge =
         quizStats[QuizStats.key(mode, Stickers.stickerName(sticker))] ?: StickerKnowledge()
 
-    fun quizAnswer(mode: QuizMode, sticker: Int, correct: Boolean, timeMs: Long) {
+    fun slowLimit(mode: QuizMode): Long = QuizStats.slowLimit(quizStats, mode)
+
+    /** Records an answer; @return true if it was correct but slow (relative to the user's usual time). */
+    fun quizAnswer(mode: QuizMode, sticker: Int, correct: Boolean, timeMs: Long): Boolean {
+        val limit = slowLimit(mode)  // measured before this answer is added
         val k = QuizStats.key(mode, Stickers.stickerName(sticker))
-        quizStats = quizStats + (k to knowledge(mode, sticker).answered(correct, timeMs))
+        quizStats = quizStats + (k to knowledge(mode, sticker).answered(correct, timeMs, limit))
         saveQuiz()
+        return correct && timeMs > limit
     }
 
     /** Forgets what the quiz learned about these stickers in this direction. */

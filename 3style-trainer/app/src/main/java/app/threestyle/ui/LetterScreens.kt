@@ -90,8 +90,10 @@ fun LettersScreen(vm: AppViewModel, modifier: Modifier) {
         item {
             SectionTitle("Letter quiz")
             Hint("Sticker → letter: name the highlighted sticker. Letter → sticker: tap the sticker of the letter. " +
-                "The quiz remembers which stickers you know: unknown and missed ones come much more often, a sticker is " +
-                "mastered (●●●●●) after 5 quick correct answers (under 3 s). \"Reset\" in the quiz starts from scratch.")
+                "The quiz remembers which stickers you know: unknown, missed and slow ones come much more often. " +
+                "\"Slow\" is relative to your own usual answer time (× 1.3), so the bar rises as you get faster; " +
+                "a correct but slow answer (e.g. counted along) counts as not learned yet. A sticker is mastered (●●●●●) " +
+                "after 5 fluent answers. \"Reset\" in the quiz starts from scratch.")
             for (toLetter in listOf(true, false)) {
                 val mode = if (toLetter) QuizMode.STICKER_TO_LETTER else QuizMode.LETTER_TO_STICKER
                 fun mastered(t: PieceType) = Stickers.speffzOrder(t).count { vm.knowledge(mode, it).mastered }
@@ -138,6 +140,8 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
     var shownAt by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
     var timeSum by remember { mutableLongStateOf(0L) }
     var confirmReset by remember { mutableStateOf(false) }
+    var lastTime by remember { mutableLongStateOf(0L) }
+    var slow by remember { mutableStateOf(false) }  // last answer correct but slow
 
     fun next() {
         val fromAgain = again.isNotEmpty() && again.first() != target && random.nextInt(3) == 0
@@ -158,13 +162,14 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
         } else {
             again.add(target)
         }
-        vm.quizAnswer(mode, target, right, t)
+        lastTime = t
+        slow = vm.quizAnswer(mode, target, right, t)
     }
 
     val type = Stickers.typeOf(target)!!
     val ok = answer == target
     LaunchedEffect(answer) {
-        if (answer != null && ok) { delay(500); next() }
+        if (answer != null && ok) { delay(if (slow) 1500 else 500); next() }
     }
     @Composable
     fun Header() {
@@ -175,7 +180,8 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
         }
         val level = vm.knowledge(mode, target).level
         Hint("This sticker: " + "●".repeat(level) + "○".repeat(StickerKnowledge.MAX - level) +
-            " · mastered ${pool.count { vm.knowledge(mode, it).mastered }}/${pool.size}")
+            " · mastered ${pool.count { vm.knowledge(mode, it).mastered }}/${pool.size}" +
+            " · fluent ≤ ${formatMs(vm.slowLimit(mode))}")
     }
 
     @Composable
@@ -209,7 +215,11 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
                 when {
                     answer == null -> Hint(if (toLetter) "Which letter is the highlighted sticker?"
                         else "Tap the ${if (type == PieceType.CORNER) "corner" else "edge"} sticker with this letter.")
-                    ok -> Text("✓ ${scheme.letterOf(target)} = ${Stickers.stickerName(target)}", color = MaterialTheme.colorScheme.primary, fontSize = 20.sp)
+                    ok && slow -> {
+                        Text("✓ ${scheme.letterOf(target)} = ${Stickers.stickerName(target)}, but slow", color = MaterialTheme.colorScheme.tertiary, fontSize = 18.sp)
+                        Hint("${formatMs(lastTime)} · fluent is up to ${formatMs(vm.slowLimit(mode))} (your usual time × 1.3) · counts as not learned yet")
+                    }
+                    ok -> Text("✓ ${scheme.letterOf(target)} = ${Stickers.stickerName(target)}  ${formatMs(lastTime)}", color = MaterialTheme.colorScheme.primary, fontSize = 20.sp)
                     else -> {
                         val a = answer!!
                         val wrong = if (Stickers.typeOf(a) == type) "${scheme.letterOf(a)} = ${Stickers.stickerName(a)}" else "not a ${type.name.lowercase()} sticker"

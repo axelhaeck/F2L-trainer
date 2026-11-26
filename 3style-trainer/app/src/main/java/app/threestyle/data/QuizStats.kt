@@ -7,8 +7,9 @@ enum class QuizMode(val code: String) { STICKER_TO_LETTER("T"), LETTER_TO_STICKE
 
 /**
  * How well the user knows one sticker in one quiz direction.
- * [level] 0..[MAX]: +1 for a correct and quick answer, unchanged for a correct but slow one,
- * -2 for a wrong one.
+ * [level] 0..[MAX]: +1 for a correct and fluent answer, -1 for a correct but slow one (e.g. counted
+ * along the alphabet: not learned yet), -2 for a wrong one. "Slow" is relative to the user's own
+ * usual answer time (see [QuizStats.slowLimit]), so the bar rises as the user gets faster.
  */
 data class StickerKnowledge(
     val level: Int = 0,
@@ -20,9 +21,9 @@ data class StickerKnowledge(
     val avgTime: Long? get() = if (times.isEmpty()) null else times.sum() / times.size
     val mastered: Boolean get() = level >= MAX
 
-    fun answered(correct: Boolean, timeMs: Long): StickerKnowledge = if (correct) {
+    fun answered(correct: Boolean, timeMs: Long, slowLimitMs: Long): StickerKnowledge = if (correct) {
         copy(
-            level = if (timeMs <= SLOW_MS) minOf(level + 1, MAX) else level,
+            level = if (timeMs <= slowLimitMs) minOf(level + 1, MAX) else maxOf(level - 1, 0),
             attempts = attempts + 1,
             times = (times + timeMs).takeLast(KEEP_TIMES),
         )
@@ -32,8 +33,6 @@ data class StickerKnowledge(
 
     companion object {
         const val MAX = 5
-        /** Answers slower than this count as correct but not yet fluent. */
-        const val SLOW_MS = 3000L
         const val KEEP_TIMES = 8
     }
 }
@@ -41,6 +40,25 @@ data class StickerKnowledge(
 /** Knowledge of all stickers, keyed by mode and sticker name. */
 object QuizStats {
     fun key(mode: QuizMode, stickerName: String) = "${mode.code}:$stickerName"
+
+    /** Until this many correct answers exist in a mode, the [START_LIMIT_MS] is used. */
+    const val MIN_SAMPLES = 10
+    const val START_LIMIT_MS = 3000L
+    /** An answer counts as fluent up to this factor of the user's usual (median) time. */
+    const val SLOW_FACTOR = 1.3
+    const val MIN_LIMIT_MS = 500L
+
+    /** The user's usual answer time in [mode]: median of the recent correct answers of all stickers. */
+    fun usualTime(stats: Map<String, StickerKnowledge>, mode: QuizMode): Long? {
+        val times = stats.filterKeys { it.startsWith("${mode.code}:") }.values.flatMap { it.times }.sorted()
+        if (times.size < MIN_SAMPLES) return null
+        val n = times.size
+        return if (n % 2 == 1) times[n / 2] else (times[n / 2 - 1] + times[n / 2]) / 2
+    }
+
+    /** Answers slower than this count as "correct but slow" (relative to the user's usual time). */
+    fun slowLimit(stats: Map<String, StickerKnowledge>, mode: QuizMode): Long =
+        usualTime(stats, mode)?.let { maxOf((it * SLOW_FACTOR).toLong(), MIN_LIMIT_MS) } ?: START_LIMIT_MS
 
     /**
      * Weight of a sticker when the next question is chosen: unknown stickers (level 0) are asked
