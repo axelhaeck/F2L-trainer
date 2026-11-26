@@ -145,23 +145,6 @@ fun SetDetailScreen(vm: AppViewModel, setId: String) {
     }
 }
 
-/** Moves of an algorithm with their phase, in written order (before cancellations). */
-fun phasedMoves(sol: Solution?, alg: String): List<Pair<String, Phase>> {
-    if (sol == null) return Alg.parse(alg).map { it to Phase.MOVES }
-    val out = ArrayList<Pair<String, Phase>>()
-    sol.setup.forEach { out.add(it to Phase.SETUP) }
-    if (sol.primitive != null) {
-        Alg.parse(sol.primitive).forEach { out.add(it to Phase.MOVES) }
-    } else {
-        sol.partA.forEach { out.add(it to Phase.A) }
-        sol.partB.forEach { out.add(it to Phase.B) }
-        Alg.invert(sol.partA).forEach { out.add(it to Phase.A_INV) }
-        Alg.invert(sol.partB).forEach { out.add(it to Phase.B_INV) }
-    }
-    Alg.invert(sol.setup).forEach { out.add(it to Phase.UNDO) }
-    return out
-}
-
 @Composable
 fun CaseDetailScreen(vm: AppViewModel, key: String) {
     val lib = vm.library ?: return Loading()
@@ -172,20 +155,17 @@ fun CaseDetailScreen(vm: AppViewModel, key: String) {
     val p = vm.progressOf(key)
     val alg = vm.preferredAlgOf(case)
     val sol = case.solutions.firstOrNull { it.notation == alg }
-    SubScreen("${case.type.short} ${case.label(scheme)}", { vm.back() }) {
-        item {
-            Text(case.describe(scheme), style = MaterialTheme.typography.bodyLarge)
-            lib.setOf(key)?.let { Hint("Set: ${it.title}") }
-        }
-        item {
-            CaseNet(case, vm)
-            Hint(when (case.type) {
+    SplitSubScreen("${case.type.short} ${case.label(scheme)}", { vm.back() }, side = {
+        Text(case.describe(scheme), style = MaterialTheme.typography.bodyLarge)
+        lib.setOf(key)?.let { Hint("Set: ${it.title}") }
+        CaseNet(case, vm)
+        Hint(when (case.type) {
                 CaseType.CORNER, CaseType.EDGE -> "The cube before the algorithm. Ring = buffer; the arrows show where the stickers go: buffer → ${scheme.letterOf(case.stickers[0])} → ${scheme.letterOf(case.stickers[1])} → buffer."
                 CaseType.TWIST -> "↻ = twisted clockwise, ↺ = twisted counter-clockwise. The algorithm twists them back."
                 CaseType.FLIP -> "The two marked edges are flipped."
                 CaseType.PARITY -> "Rings = buffers. The algorithm swaps the corner buffer with ${scheme.letterOf(case.stickers[0])} and the edge buffer with ${scheme.letterOf(case.stickers[1])}."
-            })
-        }
+        })
+    }) {
         if (alg == null) {
             item { Text("No algorithm found for this case. Add your own below.", color = MaterialTheme.colorScheme.error) }
         } else {
@@ -193,11 +173,10 @@ fun CaseDetailScreen(vm: AppViewModel, key: String) {
                 SectionTitle("Algorithm")
                 AlgText(alg, size = 22.sp, bold = true)
                 val moves = Alg.simplify(Alg.parse(alg))
-                Text("${Alg.format(moves)}  (${moveCountLabel(Alg.moveCount(moves))})",
-                    fontFamily = FontFamily.Monospace, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                AlgText(Alg.format(moves), size = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Hint(moveCountLabel(Alg.moveCount(moves)))
                 if (sol != null && (sol.primitive == null || sol.setup.isNotEmpty())) Structure(sol)
             }
-            item { StepThrough(vm, case, sol, alg) }
         }
         item {
             SectionTitle("Status")
@@ -233,9 +212,10 @@ private fun Structure(sol: Solution) {
         @Composable
         fun row(label: String, moves: List<String>, colour: Color) {
             if (moves.isEmpty()) return
-            Row {
-                Text(label, color = colour, fontWeight = FontWeight.SemiBold, modifier = Modifier.width(110.dp))
-                AlgText(Alg.format(moves), size = 15.sp)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // the label takes the width it needs (no wrapping with large fonts), the moves the rest
+                Text(label, color = colour, fontWeight = FontWeight.SemiBold, maxLines = 1, modifier = Modifier.padding(end = 12.dp))
+                AlgText(Alg.format(moves), size = 15.sp, modifier = Modifier.weight(1f))
             }
         }
         row("Setup", sol.setup, Phase.SETUP.colour)
@@ -248,48 +228,6 @@ private fun Structure(sol: Solution) {
             row(if (bIsInterchange) "B interchange" else "B insertion", sol.partB, Phase.B.colour)
             if (sol.cancels) Hint("Some moves cancel when written out.")
         }
-    }
-}
-
-@Composable
-private fun StepThrough(vm: AppViewModel, case: BldCase, sol: Solution?, alg: String) {
-    val moves = remember(alg) { phasedMoves(sol, alg) }
-    var step by remember(alg) { mutableIntStateOf(0) }
-    var playing by remember(alg) { mutableStateOf(false) }
-    val state = remember(alg, step) { case.state.apply(moves.take(step).map { it.first }) }
-    LaunchedEffect(playing, alg) {
-        while (playing) {
-            delay(700)
-            if (step >= moves.size) { playing = false } else step++
-        }
-    }
-    Column {
-        SectionTitle("Step through")
-        CaseNet(case, vm, state = state, decorate = step == 0)
-        FlowRow(Modifier.padding(vertical = 6.dp), horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            moves.forEachIndexed { i, (m, phase) ->
-                val done = i < step
-                Box(
-                    Modifier.background(if (done) phase.colour else phase.colour.copy(alpha = 0.18f), RoundedCornerShape(6.dp))
-                        .clickable { playing = false; step = i + 1 }
-                        .padding(horizontal = 7.dp, vertical = 3.dp),
-                ) {
-                    Text(m, fontFamily = FontFamily.Monospace, fontSize = 16.sp,
-                        color = if (done) Color.White else MaterialTheme.colorScheme.onSurface)
-                }
-            }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            OutlinedButton(onClick = { playing = false; step = 0 }) { Text("⏮") }
-            OutlinedButton(onClick = { playing = false; if (step > 0) step-- }) { Text("◀") }
-            Button(onClick = { if (step >= moves.size) step = 0; playing = !playing }) { Text(if (playing) "Pause" else "Play") }
-            OutlinedButton(onClick = { playing = false; if (step < moves.size) step++ }) { Text("▶") }
-            OutlinedButton(onClick = { playing = false; step = moves.size }) { Text("⏭") }
-        }
-        val legend = moves.map { it.second }.distinct()
-        Hint("Step $step of ${moves.size}" + (if (step == moves.size && case.state.apply(moves.map { it.first }).isSolvedUpToRotation()) " · solved ✓" else "") +
-            "   " + legend.joinToString("  ") { it.label })
-        Spacer(Modifier.padding(2.dp))
     }
 }
 

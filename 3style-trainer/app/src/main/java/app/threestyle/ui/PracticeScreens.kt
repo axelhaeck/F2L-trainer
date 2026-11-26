@@ -133,9 +133,10 @@ fun SessionScreen(vm: AppViewModel) {
     val s = vm.session ?: return Loading(text = "")
     val lib = vm.library ?: return Loading()
     val scheme = vm.settings.scheme
-    SubScreen(s.title, { vm.back() }, actions = { TextButton(onClick = { vm.back() }) { Text("✕ End") } }) {
-        val key = s.current
-        if (key == null) {
+    val endButton: @Composable () -> Unit = { TextButton(onClick = { vm.back() }) { Text("✕ End") } }
+    val key = s.current
+    if (key == null) SubScreen(s.title, { vm.back() }, actions = endButton) {
+        run {
             item {
                 Text("Batch done!", style = MaterialTheme.typography.headlineSmall)
                 Hint("${s.session.answered} answers.")
@@ -155,15 +156,19 @@ fun SessionScreen(vm: AppViewModel) {
                     OutlinedButton(onClick = { vm.back() }) { Text("Done") }
                 }
             }
-            return@SubScreen
         }
-        val case = lib.case(key) ?: return@SubScreen
-        val alg = vm.preferredAlgOf(case)
-        item {
-            Hint("${s.session.remaining} left in this batch · ${s.session.answered} answered · this case ${s.session.streakOf(key)}/${s.session.goalStreak} in a row")
-        }
-        item {
-            Card(Modifier.fillMaxWidth().heightIn(min = 140.dp).clickable(enabled = !s.revealed) { vm.reveal() }) {
+    } else FlashcardScreen(vm, s, key, endButton)
+}
+
+@Composable
+private fun FlashcardScreen(vm: AppViewModel, s: SessionUi, key: String, endButton: @Composable () -> Unit) {
+    val lib = vm.library ?: return Loading()
+    val scheme = vm.settings.scheme
+    val case = lib.case(key) ?: return Loading(text = "")
+    val alg = vm.preferredAlgOf(case)
+    SplitSubScreen(s.title, { vm.back() }, actions = endButton, side = {
+        Hint("${s.session.remaining} left in this batch · ${s.session.answered} answered · this case ${s.session.streakOf(key)}/${s.session.goalStreak} in a row")
+            Card(Modifier.fillMaxWidth().heightIn(min = 120.dp).clickable(enabled = !s.revealed) { vm.reveal() }) {
                 Column(Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(case.type.label, style = MaterialTheme.typography.labelLarge)
                     Text(case.label(scheme), fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold,
@@ -172,8 +177,8 @@ fun SessionScreen(vm: AppViewModel) {
                     if (!s.revealed) Hint(if (s.config.mode == PracticeMode.RECALL) "Recall the commutator, then tap" else "Execute it, then tap")
                 }
             }
-        }
-        if (s.config.showPicture || s.revealed) item { CaseNet(case, vm) }
+        if (s.config.showPicture || s.revealed) CaseNet(case, vm)
+    }) {
         if (!s.revealed) {
             item {
                 Button(onClick = { vm.reveal() }, modifier = Modifier.fillMaxWidth()) { Text("Show commutator") }
@@ -185,7 +190,8 @@ fun SessionScreen(vm: AppViewModel) {
                 if (alg != null) {
                     AlgText(alg, size = 22.sp, bold = true, modifier = Modifier.padding(top = 4.dp))
                     val moves = Alg.simplify(Alg.parse(alg))
-                    AlgText("${Alg.format(moves)}  (${moveCountLabel(Alg.moveCount(moves))})", size = 14.sp)
+                    AlgText(Alg.format(moves), size = 14.sp)
+                    Hint(moveCountLabel(Alg.moveCount(moves)))
                 }
                 TextButton(onClick = { vm.open(Screen.CaseDetail(key)) }) { Text("Open case details") }
             }

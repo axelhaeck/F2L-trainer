@@ -55,12 +55,6 @@ class ScreenshotTest {
         rule.onAllNodesWithText("New").onFirst().performClick()
         rule.waitForIdle()
         shot("03_case")
-        scrollTo("Step 0 of")
-        rule.onNodeWithText("Play").performClick()
-        rule.mainClock.advanceTimeBy(3000)
-        rule.waitUntil(10_000) { rule.onAllNodesWithText("Step 0 of", substring = true).fetchSemanticsNodes().isEmpty() }
-        scrollTo("Step ")
-        shot("04_case_step")
         scrollTo("Add your own algorithm")
         shot("05_case_algs")
         rule.onNodeWithText("← Back").performClick()

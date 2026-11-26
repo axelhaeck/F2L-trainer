@@ -78,13 +78,15 @@ fun LettersScreen(vm: AppViewModel, modifier: Modifier) {
                 FilterChip(refType == PieceType.EDGE, { refType = PieceType.EDGE }, label = { Text("Edges") })
             }
             val s = vm.settings
-            CubeNet(
-                state = CubeState.SOLVED,
-                faceColours = CubeColours.faceColours(s.topColour, s.frontColour),
-                modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-                markers = Stickers.speffzOrder(refType).map { Marker(it, scheme.letterOf(it).toString()) },
-                description = "Letter scheme for ${refType.name.lowercase()}s",
-            )
+            NetFrame(Modifier.padding(top = 6.dp)) { m ->
+                CubeNet(
+                    state = CubeState.SOLVED,
+                    faceColours = CubeColours.faceColours(s.topColour, s.frontColour),
+                    modifier = m,
+                    markers = Stickers.speffzOrder(refType).map { Marker(it, scheme.letterOf(it).toString()) },
+                    description = "Letter scheme for ${refType.name.lowercase()}s",
+                )
+            }
             Hint("U on top, L F R B in the middle row, D at the bottom. Change letters in Settings.")
         }
         item {
@@ -433,16 +435,17 @@ fun MemoScreen(vm: AppViewModel) {
     val eb = lib.config.edgeBuffer
     val pe = lib.config.parityEdge
 
-    SubScreen("Memo tracing", { vm.back() }) {
-        item {
-            Text("Scramble", style = MaterialTheme.typography.labelLarge)
-            AlgText(scramble, size = 16.sp)
-            Hint("Scramble a solved cube (${CubeColours.faceColours(s.topColour, s.frontColour).let { "${app.threestyle.data.Colours.NAMES[it[0]]} top, ${app.threestyle.data.Colours.NAMES[it[2]]} front" }}) or trace from the picture.")
-            CubeNet(state, CubeColours.faceColours(s.topColour, s.frontColour), Modifier.fillMaxWidth().padding(top = 6.dp),
+    SplitSubScreen("Memo tracing", { vm.back() }, side = {
+        Text("Scramble", style = MaterialTheme.typography.labelLarge)
+        AlgText(scramble, size = 16.sp)
+        Hint("Scramble a solved cube (${CubeColours.faceColours(s.topColour, s.frontColour).let { "${app.threestyle.data.Colours.NAMES[it[0]]} top, ${app.threestyle.data.Colours.NAMES[it[2]]} front" }}) or trace from the picture.")
+        NetFrame { m ->
+            CubeNet(state, CubeColours.faceColours(s.topColour, s.frontColour), m,
                 markers = listOf(Marker(cb, "", ring = true), Marker(eb, "", ring = true)),
                 description = "Scrambled cube")
-            Hint("Rings = buffers (${pieceLabel(cb, scheme)}, ${pieceLabel(eb, scheme)}).")
         }
+        Hint("Rings = buffers (${pieceLabel(cb, scheme)}, ${pieceLabel(eb, scheme)}).")
+    }) {
         item {
             OutlinedTextField(edgeText, { edgeText = it; checked = false }, label = { Text("Edge memo (letters)") },
                 singleLine = true, modifier = Modifier.fillMaxWidth(),

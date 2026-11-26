@@ -1,6 +1,13 @@
 package app.threestyle.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -92,8 +99,17 @@ fun Hint(text: String, modifier: Modifier = Modifier) {
 
 fun formatMs(ms: Long?): String = if (ms == null) "–" else String.format(java.util.Locale.US, "%.2fs", ms / 1000.0)
 
-/** A full screen with a title bar and a back button; the content is a lazy list. */
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TitleBar(title: String, onBack: () -> Unit, actions: @Composable () -> Unit) {
+    TopAppBar(
+        title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        navigationIcon = { TextButton(onClick = onBack) { Text("← Back") } },
+        actions = { actions() },
+    )
+}
+
+/** A full screen with a title bar and a back button; the content is a lazy list. */
 @Composable
 fun SubScreen(
     title: String,
@@ -101,15 +117,7 @@ fun SubScreen(
     actions: @Composable () -> Unit = {},
     content: LazyListScope.() -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                navigationIcon = { TextButton(onClick = onBack) { Text("← Back") } },
-                actions = { actions() },
-            )
-        },
-    ) { padding ->
+    Scaffold(topBar = { TitleBar(title, onBack, actions) }) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -118,24 +126,75 @@ fun SubScreen(
     }
 }
 
-/** A full screen with a title bar and a back button; the content does not scroll (fixed portrait layout). */
-@OptIn(ExperimentalMaterial3Api::class)
+/** true if the screen is wider than high (phone turned sideways). */
+@Composable
+fun isLandscape(): Boolean {
+    val c = LocalConfiguration.current
+    return c.screenWidthDp > c.screenHeightDp
+}
+
+/**
+ * Largest height of a cube picture: a quarter of the screen height in portrait (so the rest of the
+ * screen stays usable), almost the full height in landscape (where it sits next to the content).
+ */
+@Composable
+fun netMaxHeight(): Dp {
+    val c = LocalConfiguration.current
+    return if (c.screenWidthDp > c.screenHeightDp) maxOf(c.screenHeightDp - 170, 120).dp else (c.screenHeightDp * 0.25f).dp
+}
+
+/** Centres a cube picture and limits its size; [content] gets the modifier for the picture. */
+@Composable
+fun NetFrame(modifier: Modifier = Modifier, content: @Composable (Modifier) -> Unit) {
+    Box(modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+        content(Modifier.heightIn(max = netMaxHeight()))
+    }
+}
+
+/**
+ * A screen with a picture part ([side]) and a list ([content]). Portrait: one list, the picture part
+ * first. Landscape: the picture part on the left, the list on the right.
+ */
+@Composable
+fun SplitSubScreen(
+    title: String,
+    onBack: () -> Unit,
+    actions: @Composable () -> Unit = {},
+    side: @Composable ColumnScope.() -> Unit,
+    content: LazyListScope.() -> Unit,
+) {
+    if (!isLandscape()) {
+        SubScreen(title, onBack, actions) {
+            item { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) { side() } }
+            content()
+        }
+        return
+    }
+    Scaffold(topBar = { TitleBar(title, onBack, actions) }) { padding ->
+        Row(Modifier.fillMaxSize().padding(padding)) {
+            Column(
+                Modifier.weight(0.45f).fillMaxHeight().verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) { side() }
+            LazyColumn(
+                Modifier.weight(0.55f).fillMaxHeight(),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) { content() }
+        }
+    }
+}
+
+/** A full screen with a title bar and a back button; the content does not scroll (fixed layout). */
 @Composable
 fun FixedScreen(
     title: String,
     onBack: () -> Unit,
     actions: @Composable () -> Unit = {},
-    content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                navigationIcon = { TextButton(onClick = onBack) { Text("← Back") } },
-                actions = { actions() },
-            )
-        },
-    ) { padding ->
+    Scaffold(topBar = { TitleBar(title, onBack, actions) }) { padding ->
         Column(
             Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -221,15 +280,17 @@ fun CaseNet(
 ) {
     val s = vm.settings
     val visual = caseVisual(case, s.scheme)
-    CubeNet(
-        state = state,
-        faceColours = CubeColours.faceColours(s.topColour, s.frontColour),
-        modifier = modifier.fillMaxWidth(),
-        focus = focusOf(state, visual.pieces),
-        markers = if (decorate) visual.markers else emptyList(),
-        arrows = if (decorate) visual.arrows else emptyList(),
-        description = "${case.type.short} ${case.label(s.scheme)}: ${case.describe(s.scheme)}",
-    )
+    NetFrame(modifier) { m ->
+        CubeNet(
+            state = state,
+            faceColours = CubeColours.faceColours(s.topColour, s.frontColour),
+            modifier = m,
+            focus = focusOf(state, visual.pieces),
+            markers = if (decorate) visual.markers else emptyList(),
+            arrows = if (decorate) visual.arrows else emptyList(),
+            description = "${case.type.short} ${case.label(s.scheme)}: ${case.describe(s.scheme)}",
+        )
+    }
 }
 
 /** Short explanation of a commutator class, shown above its sets. */

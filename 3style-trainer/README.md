@@ -13,8 +13,8 @@ Install: `3Style-Trainer.apk` (signed with a debug key; use your own key before 
   21 parity cases. Buffers can be picked in Settings (all 8 corners, all 12 edges) as well as the parity
   edge. Default UFR / UF, Speffz letters (editable letter scheme), cube colours selectable.
 * **Visualisation** of every case: the whole cube as a net, the involved pieces in colour, buffer ring,
-  target letters and arrows (buffer → first letter → second letter). A step-through player shows the
-  cube after every move, the moves coloured by phase (setup, A, B, A', B', undo).
+  target letters and arrows (buffer → first letter → second letter), and the commutator split into
+  setup, insertion and interchange. In landscape the picture is shown next to the content.
 * **Learn in small sets, clustered by commutator class**: 4-movers, pure commutators, cancelling
   setups (A9 type), 1-, 2- and 3-move setups; inside a class by the layer of the interchange. At most 8
   cases per set, a case and its inverse always together (their commutators are each other's inverse).
