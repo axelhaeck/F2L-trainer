@@ -99,7 +99,7 @@ class ScreenshotTest {
         rule.onNodeWithText("Letters").performClick()
         rule.waitForIdle()
         shot("12_letters")
-        scrollTo("Sticker → letter")
+        rule.onNode(hasScrollAction()).performScrollToNode(hasText("Both"))
         rule.onAllNodesWithText("Corners").onFirst().assertExists()
         rule.onAllNodesWithText("Both")[0].performClick()
         rule.waitForIdle()
@@ -114,6 +114,7 @@ class ScreenshotTest {
         }
         shot("13b_quiz_answered")
         rule.onNodeWithText("← Back").performClick()
+        scrollTo("Letter pairs")
         rule.onAllNodesWithText("Both")[1].performClick()
         rule.waitForIdle()
         shot("13c_quiz_to_sticker")

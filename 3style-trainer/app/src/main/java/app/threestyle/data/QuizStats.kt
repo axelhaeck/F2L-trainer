@@ -66,9 +66,27 @@ object QuizStats {
      */
     fun weight(k: StickerKnowledge): Int = 1 shl (StickerKnowledge.MAX - k.level)
 
-    /** Picks the next sticker by weight, never [previous] (if there is another choice). */
-    fun <T> pick(pool: List<T>, knowledgeOf: (T) -> StickerKnowledge, previous: T?, random: Random): T {
-        val candidates = if (pool.size > 1) pool.filter { it != previous } else pool
+    /**
+     * Letter positions (0..23 = A..X in Speffz order, corners and edges alike) that are too close to
+     * [a] to be asked right after it, because one could count from one to the other: the same face
+     * (group of four letters) and the next / previous position (D-E, H-I, ..., X-A).
+     */
+    fun closePositions(a: Int, b: Int): Boolean =
+        a / 4 == b / 4 || (a - b + 24) % 24 == 1 || (b - a + 24) % 24 == 1
+
+    /**
+     * Picks the next sticker by weight. Never [previous], and never one that [isBanned] says is too
+     * close to it, unless nothing else is left.
+     */
+    fun <T> pick(
+        pool: List<T>,
+        knowledgeOf: (T) -> StickerKnowledge,
+        previous: T?,
+        random: Random,
+        isBanned: (T) -> Boolean = { false },
+    ): T {
+        val notPrevious = if (pool.size > 1) pool.filter { it != previous } else pool
+        val candidates = notPrevious.filter { !isBanned(it) }.ifEmpty { notPrevious }
         val weights = candidates.map { weight(knowledgeOf(it)) }
         var r = random.nextInt(weights.sum())
         for ((i, w) in weights.withIndex()) {

@@ -92,7 +92,9 @@ fun LettersScreen(vm: AppViewModel, modifier: Modifier) {
             Hint("Sticker → letter: name the highlighted sticker. Letter → sticker: tap the sticker of the letter. " +
                 "The quiz remembers which stickers you know: unknown, missed and slow ones come much more often. " +
                 "\"Slow\" is relative to your own usual answer time (× 1.3), so the bar rises as you get faster; " +
-                "a correct but slow answer (e.g. counted along) counts as not learned yet. A sticker is mastered (●●●●●) " +
+                "a correct but slow answer (e.g. counted along) counts as not learned yet. After a sticker, no sticker of the same " +
+                "letter group (A–D, E–H, …) or the next/previous letter comes, so you cannot count from the last answer. " +
+                "A sticker is mastered (●●●●●) " +
                 "after 5 fluent answers. \"Reset\" in the quiz starts from scratch.")
             for (toLetter in listOf(true, false)) {
                 val mode = if (toLetter) QuizMode.STICKER_TO_LETTER else QuizMode.LETTER_TO_STICKER
@@ -143,9 +145,17 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
     var lastTime by remember { mutableLongStateOf(0L) }
     var slow by remember { mutableStateOf(false) }  // last answer correct but slow
 
+    /** Letter position A..X (0..23) of a sticker, the same for corners and edges. */
+    fun position(f: Int) = Stickers.speffzOrder(Stickers.typeOf(f)!!).indexOf(f)
+
     fun next() {
-        val fromAgain = again.isNotEmpty() && again.first() != target && random.nextInt(3) == 0
-        target = if (fromAgain) again.removeAt(0) else QuizStats.pick(pool, { vm.knowledge(mode, it) }, target, random)
+        // no sticker whose letter position is close to the previous one (same face or next letter):
+        // one could count from the previous answer instead of knowing the letter
+        val prev = position(target)
+        fun banned(f: Int) = QuizStats.closePositions(prev, position(f))
+        val retry = again.firstOrNull { it != target && !banned(it) }
+        target = if (retry != null && random.nextInt(3) == 0) retry.also { again.remove(it) }
+            else QuizStats.pick(pool, { vm.knowledge(mode, it) }, target, random, ::banned)
         answer = null
         shownAt = SystemClock.elapsedRealtime()
     }

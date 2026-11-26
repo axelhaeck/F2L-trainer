@@ -64,6 +64,27 @@ class QuizStatsTest {
         assertEquals(24, seen.size)
     }
 
+    @Test fun closeLetterPositionsAreNotAskedNext() {
+        // A=0 .. X=23
+        assertTrue(QuizStats.closePositions(0, 3))    // A, D: same group
+        assertTrue(QuizStats.closePositions(3, 4))    // D, E: next letter
+        assertTrue(QuizStats.closePositions(23, 0))   // X, A: wrap around
+        assertTrue(QuizStats.closePositions(12, 15))  // M, P
+        assertTrue(!QuizStats.closePositions(0, 5))   // A, F
+        assertTrue(!QuizStats.closePositions(4, 9))   // E, J
+        // corners and edges share letter positions: pool of 48 stickers, position = index % 24
+        val pool = (0 until 48).toList()
+        val rnd = Random(3)
+        var prev = 0
+        repeat(5_000) {
+            val p = QuizStats.pick(pool, { StickerKnowledge() }, prev, rnd) { QuizStats.closePositions(prev % 24, it % 24) }
+            assertTrue("$prev -> $p", !QuizStats.closePositions(prev % 24, p % 24))
+            prev = p
+        }
+        // if everything is banned, something is still picked (never the previous one)
+        assertEquals(1, QuizStats.pick(listOf(0, 1), { StickerKnowledge() }, 0, rnd) { true })
+    }
+
     @Test fun codecAndBackupRoundTrip() {
         val m = mapOf(
             "T:UFR" to StickerKnowledge(3, 7, 2, listOf(900L, 1200L)),
