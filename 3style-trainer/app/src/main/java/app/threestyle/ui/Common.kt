@@ -28,6 +28,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.delay
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -323,3 +333,31 @@ enum class Phase(val label: String, val colour: Color) {
     MOVES("Moves", Color(0xFF27AE60)),
 }
 
+/**
+ * Keeps the screen on (no dimming, no auto lock) while the user is active on this screen, so one can
+ * think about a case without the display going dark. One minute after the last touch the screen is
+ * released, and the phone dims and locks as usual. Wrap the screen's content in it.
+ * Uses the window flag "keep screen on": no permission needed.
+ */
+@Composable
+fun KeepScreenOnWhileActive(timeoutMs: Long = 60_000L, content: @Composable () -> Unit) {
+    val view = LocalView.current
+    var lastActivity by remember { mutableLongStateOf(System.nanoTime()) }
+    LaunchedEffect(lastActivity) {
+        view.keepScreenOn = true
+        delay(timeoutMs)
+        view.keepScreenOn = false
+    }
+    DisposableEffect(view) { onDispose { view.keepScreenOn = false } }
+    Box(
+        Modifier.fillMaxSize().pointerInput(Unit) {
+            awaitPointerEventScope {
+                while (true) {
+                    // observe every touch without consuming it
+                    awaitPointerEvent(PointerEventPass.Initial)
+                    lastActivity = System.nanoTime()
+                }
+            }
+        },
+    ) { content() }
+}

@@ -132,9 +132,15 @@ fun PracticeSetupScreen(vm: AppViewModel, modifier: Modifier) {
 fun SessionScreen(vm: AppViewModel) {
     val s = vm.session ?: return Loading(text = "")
     val lib = vm.library ?: return Loading()
-    val scheme = vm.settings.scheme
     val endButton: @Composable () -> Unit = { TextButton(onClick = { vm.back() }) { Text("✕ End") } }
     val key = s.current
+    KeepScreenOnWhileActive { SessionContent(vm, s, key, endButton) }
+}
+
+@Composable
+private fun SessionContent(vm: AppViewModel, s: SessionUi, key: String?, endButton: @Composable () -> Unit) {
+    val lib = vm.library ?: return Loading()
+    val scheme = vm.settings.scheme
     if (key == null) SubScreen(s.title, { vm.back() }, actions = endButton) {
         run {
             item {
