@@ -24,8 +24,9 @@ Install: `3Style-Trainer.apk` (signed with a debug key; use your own key before 
   back soon; weakest / longest-unseen first; inverses together). Recall mode or execution mode, times
   are recorded. Status per case *New / Learning / Known*: known cases are left out unless selected for
   review; a case becomes known at full strength (optional) and falls back to learning when forgotten.
-* **Letters**: letter scheme reference, letter quiz in both directions (sticker → letter, tap the
-  sticker of a letter), letter-pair words with a drill, and **memo tracing** of random scrambles,
+* **Letters**: letter scheme reference, an adaptive letter quiz in both directions (sticker → letter,
+  tap the sticker of a letter; it remembers which stickers you know and asks the weak ones much more
+  often, with a reset), letter-pair words with a drill, and **memo tracing** of random scrambles,
   checked letter by letter (any cycle break accepted).
 * Progress statistics, export/import backup.
 

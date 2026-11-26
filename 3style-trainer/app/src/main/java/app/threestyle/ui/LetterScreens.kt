@@ -42,6 +42,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.unit.Dp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import app.threestyle.data.QuizMode
+import app.threestyle.data.QuizStats
+import app.threestyle.data.StickerKnowledge
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -84,9 +89,15 @@ fun LettersScreen(vm: AppViewModel, modifier: Modifier) {
         }
         item {
             SectionTitle("Letter quiz")
-            Hint("Sticker → letter: name the highlighted sticker. Letter → sticker: tap the sticker of the letter.")
+            Hint("Sticker → letter: name the highlighted sticker. Letter → sticker: tap the sticker of the letter. " +
+                "The quiz remembers which stickers you know: unknown and missed ones come much more often, a sticker is " +
+                "mastered (●●●●●) after 5 quick correct answers (under 3 s). \"Reset\" in the quiz starts from scratch.")
             for (toLetter in listOf(true, false)) {
-                Text(if (toLetter) "Sticker → letter" else "Letter → sticker", modifier = Modifier.padding(top = 6.dp))
+                val mode = if (toLetter) QuizMode.STICKER_TO_LETTER else QuizMode.LETTER_TO_STICKER
+                fun mastered(t: PieceType) = Stickers.speffzOrder(t).count { vm.knowledge(mode, it).mastered }
+                Text((if (toLetter) "Sticker → letter" else "Letter → sticker") +
+                    "  ·  mastered: corners ${mastered(PieceType.CORNER)}/24, edges ${mastered(PieceType.EDGE)}/24",
+                    modifier = Modifier.padding(top = 6.dp))
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     FilledTonalButton(onClick = { vm.open(Screen.LetterQuiz(toLetter, setOf(PieceType.CORNER))) }) { Text("Corners") }
                     FilledTonalButton(onClick = { vm.open(Screen.LetterQuiz(toLetter, setOf(PieceType.EDGE))) }) { Text("Edges") }
@@ -116,20 +127,21 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
     val scheme = vm.settings.scheme
     val s = vm.settings
     val pool = remember(types) { types.flatMap { Stickers.speffzOrder(it).toList() } }
+    val mode = if (toLetter) QuizMode.STICKER_TO_LETTER else QuizMode.LETTER_TO_STICKER
     val random = remember { Random(SystemClock.elapsedRealtimeNanos()) }
+    // stickers answered wrong in this session come back soon (in addition to the weighting)
     val again = remember { mutableStateListOf<Int>() }
-    var target by remember { mutableIntStateOf(pool[random.nextInt(pool.size)]) }
+    var target by remember { mutableIntStateOf(QuizStats.pick(pool, { vm.knowledge(mode, it) }, null, random)) }
     var answer by remember { mutableStateOf<Int?>(null) }  // the sticker the user answered with
     var correct by remember { mutableIntStateOf(0) }
     var total by remember { mutableIntStateOf(0) }
     var shownAt by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
     var timeSum by remember { mutableLongStateOf(0L) }
+    var confirmReset by remember { mutableStateOf(false) }
 
     fun next() {
-        val fromAgain = again.isNotEmpty() && random.nextInt(3) == 0
-        var t = if (fromAgain) again.removeAt(0) else pool[random.nextInt(pool.size)]
-        if (t == target && pool.size > 1) t = pool.filter { it != target }[random.nextInt(pool.size - 1)]
-        target = t
+        val fromAgain = again.isNotEmpty() && again.first() != target && random.nextInt(3) == 0
+        target = if (fromAgain) again.removeAt(0) else QuizStats.pick(pool, { vm.knowledge(mode, it) }, target, random)
         answer = null
         shownAt = SystemClock.elapsedRealtime()
     }
@@ -138,12 +150,15 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
         if (answer != null) return
         answer = sticker
         total++
-        if (sticker == target) {
+        val t = SystemClock.elapsedRealtime() - shownAt
+        val right = sticker == target
+        if (right) {
             correct++
-            timeSum += SystemClock.elapsedRealtime() - shownAt
+            timeSum += t
         } else {
             again.add(target)
         }
+        vm.quizAnswer(mode, target, right, t)
     }
 
     val type = Stickers.typeOf(target)!!
@@ -158,6 +173,9 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
                 style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
             Hint("$correct / $total correct" + if (correct > 0) " · Ø ${formatMs(timeSum / correct)}" else "")
         }
+        val level = vm.knowledge(mode, target).level
+        Hint("This sticker: " + "●".repeat(level) + "○".repeat(StickerKnowledge.MAX - level) +
+            " · mastered ${pool.count { vm.knowledge(mode, it).mastered }}/${pool.size}")
     }
 
     @Composable
@@ -227,7 +245,17 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
         }
     }
 
-    FixedScreen(if (toLetter) "Sticker → letter" else "Letter → sticker", { vm.back() }) {
+    if (confirmReset) {
+        AlertDialog(
+            onDismissRequest = { confirmReset = false },
+            title = { Text("Start from scratch?") },
+            text = { Text("The quiz forgets which of these ${pool.size} stickers you know (${if (toLetter) "sticker → letter" else "letter → sticker"}). All of them are asked equally often again.") },
+            confirmButton = { TextButton(onClick = { vm.resetQuiz(mode, pool); confirmReset = false }) { Text("Reset") } },
+            dismissButton = { TextButton(onClick = { confirmReset = false }) { Text("Cancel") } },
+        )
+    }
+    FixedScreen(if (toLetter) "Sticker → letter" else "Letter → sticker", { vm.back() },
+        actions = { TextButton(onClick = { confirmReset = true }) { Text("Reset") } }) {
         BoxWithConstraints(Modifier.fillMaxWidth().weight(1f)) {
             val gaps = 6.dp * 5  // between the 6 rows of keys
             if (maxWidth > maxHeight) {

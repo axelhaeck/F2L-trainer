@@ -121,12 +121,18 @@ fun SubScreen(
 /** A full screen with a title bar and a back button; the content does not scroll (fixed portrait layout). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FixedScreen(title: String, onBack: () -> Unit, content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit) {
+fun FixedScreen(
+    title: String,
+    onBack: () -> Unit,
+    actions: @Composable () -> Unit = {},
+    content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
+) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                 navigationIcon = { TextButton(onClick = onBack) { Text("← Back") } },
+                actions = { actions() },
             )
         },
     ) { padding ->

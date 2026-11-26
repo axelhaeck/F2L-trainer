@@ -24,6 +24,9 @@ import app.threestyle.data.PracticeConfig
 import app.threestyle.data.PracticeMode
 import app.threestyle.data.PracticeSession
 import app.threestyle.data.ProgressCodec
+import app.threestyle.data.QuizMode
+import app.threestyle.data.QuizStats
+import app.threestyle.data.StickerKnowledge
 import app.threestyle.data.Settings
 import app.threestyle.data.Status
 import app.threestyle.data.WordsCodec
@@ -91,6 +94,10 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     var words by mutableStateOf(WordsCodec.decode(prefs.getString(KEY_WORDS, null)))
+        private set
+
+    /** Letter quiz: how well each sticker is known (per quiz direction). */
+    var quizStats by mutableStateOf(QuizStats.decode(prefs.getString(KEY_QUIZ, null)))
         private set
 
     var practiceConfig by mutableStateOf(loadPracticeConfig())
@@ -215,8 +222,26 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         prefs.edit().putString(KEY_WORDS, WordsCodec.encode(words)).apply()
     }
 
+    // ---------------------------------------------------------------- letter quiz
+    fun knowledge(mode: QuizMode, sticker: Int): StickerKnowledge =
+        quizStats[QuizStats.key(mode, Stickers.stickerName(sticker))] ?: StickerKnowledge()
+
+    fun quizAnswer(mode: QuizMode, sticker: Int, correct: Boolean, timeMs: Long) {
+        val k = QuizStats.key(mode, Stickers.stickerName(sticker))
+        quizStats = quizStats + (k to knowledge(mode, sticker).answered(correct, timeMs))
+        saveQuiz()
+    }
+
+    /** Forgets what the quiz learned about these stickers in this direction. */
+    fun resetQuiz(mode: QuizMode, stickers: Collection<Int>) {
+        quizStats = quizStats - stickers.map { QuizStats.key(mode, Stickers.stickerName(it)) }.toSet()
+        saveQuiz()
+    }
+
+    private fun saveQuiz() { prefs.edit().putString(KEY_QUIZ, QuizStats.encode(quizStats)).apply() }
+
     // ---------------------------------------------------------------- backup
-    fun exportText(): String = Backup.encode(settings, progress, words)
+    fun exportText(): String = Backup.encode(settings, progress, words, quizStats)
 
     /** @return a message for the user */
     fun importText(text: String): String {
@@ -225,6 +250,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         saveProgress()
         words = c.words
         prefs.edit().putString(KEY_WORDS, WordsCodec.encode(words)).apply()
+        quizStats = c.quiz
+        saveQuiz()
         updateSettings(c.settings)
         return "Imported ${c.progress.size} cases and ${c.words.size} letter pair words."
     }
@@ -338,6 +365,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     companion object {
         private const val KEY_PROGRESS = "progress"
         private const val KEY_WORDS = "words"
+        private const val KEY_QUIZ = "quiz"
         const val MIN_BATCH = 2
         const val MAX_BATCH = 12
 

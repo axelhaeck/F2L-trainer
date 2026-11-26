@@ -40,10 +40,11 @@ class SmallScreenTest {
     private fun check(name: String) {
         rule.setContent { AppTheme { App(finish = {}) } }
         rule.onNodeWithText("Letters").performClick()
-        rule.onNode(hasScrollAction()).performScrollToNode(hasText("Sticker → letter"))
+        rule.onNode(hasScrollAction()).performScrollToNode(hasText("Both"))
         rule.onAllNodesWithText("Both")[0].performClick()
         rule.waitForIdle()
         // first and last key of the 6 x 4 grid are visible
+        rule.onRoot().captureRoboImage("build/screenshots/$name.png")
         rule.onNodeWithText("A").assertIsDisplayed()
         rule.onNodeWithText("X").assertIsDisplayed()
         rule.onRoot().captureRoboImage("build/screenshots/$name.png")

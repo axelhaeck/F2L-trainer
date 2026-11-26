@@ -155,7 +155,12 @@ data class Settings(
 object Backup {
     private const val HEADER = "3style-trainer-backup-v1"
 
-    fun encode(settings: Settings, progress: Map<String, ItemProgress>, words: Map<String, String>): String {
+    fun encode(
+        settings: Settings,
+        progress: Map<String, ItemProgress>,
+        words: Map<String, String>,
+        quiz: Map<String, StickerKnowledge> = emptyMap(),
+    ): String {
         val sb = StringBuilder(HEADER).append('\n')
         sb.append("[settings]\n")
         for ((k, v) in settings.toMap()) sb.append(k).append('=').append(v).append('\n')
@@ -163,10 +168,17 @@ object Backup {
         for ((k, v) in progress.toSortedMap()) sb.append(ProgressCodec.encodeLine(k, v)).append('\n')
         sb.append("[words]\n")
         sb.append(WordsCodec.encode(words)).append('\n')
+        sb.append("[quiz]\n")
+        sb.append(QuizStats.encode(quiz)).append('\n')
         return sb.toString()
     }
 
-    data class Content(val settings: Settings, val progress: Map<String, ItemProgress>, val words: Map<String, String>)
+    data class Content(
+        val settings: Settings,
+        val progress: Map<String, ItemProgress>,
+        val words: Map<String, String>,
+        val quiz: Map<String, StickerKnowledge> = emptyMap(),
+    )
 
     /** @return null if the text is not a backup of this app. */
     fun decode(text: String): Content? {
@@ -176,6 +188,7 @@ object Backup {
         val settings = HashMap<String, String>()
         val progress = HashMap<String, ItemProgress>()
         val words = StringBuilder()
+        val quiz = StringBuilder()
         for (line in lines.drop(1)) {
             if (line.startsWith("[") && line.endsWith("]")) { section = line; continue }
             if (line.isBlank()) continue
@@ -183,8 +196,9 @@ object Backup {
                 "[settings]" -> line.indexOf('=').takeIf { it > 0 }?.let { settings[line.substring(0, it)] = line.substring(it + 1) }
                 "[progress]" -> ProgressCodec.decodeLine(line)?.let { progress[it.first] = it.second }
                 "[words]" -> words.append(line).append('\n')
+                "[quiz]" -> quiz.append(line).append('\n')
             }
         }
-        return Content(Settings.fromMap(settings), progress, WordsCodec.decode(words.toString()))
+        return Content(Settings.fromMap(settings), progress, WordsCodec.decode(words.toString()), QuizStats.decode(quiz.toString().trim()))
     }
 }
