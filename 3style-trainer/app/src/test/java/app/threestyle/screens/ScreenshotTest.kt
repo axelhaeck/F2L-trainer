@@ -105,14 +105,17 @@ class ScreenshotTest {
         rule.waitForIdle()
         shot("13_quiz_to_letter")
         // answer: one of A/B is wrong (two different stickers), the feedback is shown
+        rule.mainClock.autoAdvance = false
         rule.onNodeWithText("A").performClick()
+        rule.mainClock.advanceTimeBy(50)
         rule.waitForIdle()
-        if (rule.onAllNodesWithText("Next").fetchSemanticsNodes().isEmpty()) {
+        if (rule.onAllNodesWithText("That was", substring = true).fetchSemanticsNodes().isEmpty()) {
             rule.mainClock.advanceTimeBy(1000)
             rule.onNodeWithText("B").performClick()
-            rule.waitForIdle()
+            rule.mainClock.advanceTimeBy(50)
         }
         shot("13b_quiz_answered")
+        rule.mainClock.autoAdvance = true
         rule.onNodeWithText("← Back").performClick()
         scrollTo("Letter pairs")
         rule.onAllNodesWithText("Both")[1].performClick()

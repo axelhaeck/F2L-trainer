@@ -126,6 +126,16 @@ fun LettersScreen(vm: AppViewModel, modifier: Modifier) {
     }
 }
 
+/**
+ * How long the feedback stays before the next sticker is asked automatically: short after a correct
+ * answer, a bit longer after a correct but slow one, longest after a mistake (to see the right answer).
+ */
+fun quizPauseMs(correct: Boolean, slow: Boolean): Long = when {
+    !correct -> 1500L
+    slow -> 900L
+    else -> 190L
+}
+
 @Composable
 fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>) {
     val scheme = vm.settings.scheme
@@ -179,7 +189,12 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
     val type = Stickers.typeOf(target)!!
     val ok = answer == target
     LaunchedEffect(answer) {
-        if (answer != null && ok) { delay(if (slow) 1500 else 500); next() }
+        // next sticker automatically: quickly after a correct answer, after a mistake the correct
+        // answer stays visible longer
+        if (answer != null) {
+            delay(quizPauseMs(ok, slow))
+            next()
+        }
     }
     @Composable
     fun Header() {
@@ -238,7 +253,6 @@ fun LetterQuizScreen(vm: AppViewModel, toLetter: Boolean, types: Set<PieceType>)
                     }
                 }
             }
-            if (answer != null && !ok) Button(onClick = { next() }) { Text("Next") }
         }
     }
 
